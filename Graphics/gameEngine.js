@@ -1,14 +1,18 @@
-var GamePiece;
+import {Ball} from '../MazeLogic/Ball';
+
+//var GamePiece;
 var Obstacles = [];
 var testWall;
 var testWall2;
+var ball;
 
 function startGame() {
     //GameArea.start();
     //GamePiece = new createWall(30, 30, "blue", 10, 120);
-    GamePiece = new createPlayer(60, 60, 15, 0, 2 * Math.PI, "blue");
+    //GamePiece = new createPlayer(60, 60, 15, 0, 2 * Math.PI, "blue");
     testWall = new createWall(30, 90, "red", 70, 90);
     testWall2 = new createWall(30, 90, "red", 200, 90);
+    ball = new Ball(90,90,20);
     GameArea.start();
   }
   
@@ -59,9 +63,18 @@ function startGame() {
     }
   }
   
+  function renderBall(x,y,radius,color){
+    ctx = GameArea.context;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, 2* Math.PI);
+        ctx.fillStyle = color;
+        ctx.fill();
+  }
+
   function updateGameArea() {
     GameArea.clear();
-    GamePiece.update();
+    //GamePiece.update();
+    renderBall(ball.x, ball.y, ball.radius, "red");
     testWall.update();
     testWall2.update();
   }
