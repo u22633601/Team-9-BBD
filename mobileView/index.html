@@ -24,12 +24,12 @@
 
     <div id="waiting-screen" class="screen hidden">
         <h2>Waiting for Players</h2>
-        <p>Game ID: <span id="game-id-display"></span></p>
+        <p>Game ID: <span id="game-id-display"></span> <button id="copy-game-id-btn">Copy</button></p>
         <p>Players:</p>
         <ul id="player-list"></ul>
         <button id="start-game-btn" class="hidden">Start Game</button>
     </div>
-
+    <div id="toast" class="toast"></div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.3.2/socket.io.js"></script>
     <script src="script.js"></script>
 </body>

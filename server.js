@@ -27,15 +27,22 @@ io.on('connection', (socket) => {
     socket.on('joinGame', ({ gameId, username }) => {
         const game = games.get(gameId);
         if (game && !game.isStarted) {
-            game.players.push(username);
-            game.sockets.push(socket);
-            socket.join(gameId);
-            io.to(gameId).emit('playerJoined', game.players);
-            socket.emit('gameJoined', { gameId, players: game.players, isHost: false });
+            if (game.players.length >= 4) {
+                socket.emit('joinError', 'Game is already full');
+            } else if (game.players.includes(username)) {
+                socket.emit('joinError', 'Username is already taken');
+            } else {
+                game.players.push(username);
+                game.sockets.push(socket);
+                socket.join(gameId);
+                io.to(gameId).emit('playerJoined', game.players);
+                socket.emit('gameJoined', { gameId, players: game.players, isHost: false });
+            }
         } else {
             socket.emit('joinError', 'Game not found or already started');
         }
     });
+
 
     socket.on('startGame', (gameId) => {
         const game = games.get(gameId);

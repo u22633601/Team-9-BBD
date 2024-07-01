@@ -12,9 +12,24 @@ const gameIdInput = document.getElementById('game-id-input');
 const gameIdDisplay = document.getElementById('game-id-display');
 const playerList = document.getElementById('player-list');
 const startGameBtn = document.getElementById('start-game-btn');
+const copyGameIdBtn = document.getElementById('copy-game-id-btn');
+const toast = document.getElementById('toast');
 
 let currentUsername = '';
 let isHost = false;
+
+
+
+copyGameIdBtn.addEventListener('click', () => {
+    const gameId = gameIdDisplay.textContent;
+    navigator.clipboard.writeText(gameId).then(() => {
+        showToast('Game ID copied to clipboard!');
+    }).catch(err => {
+        showToast('Failed to copy Game ID');
+        console.error('Error copying text: ', err);
+    });
+});
+
 
 loginBtn.addEventListener('click', () => {
     currentUsername = usernameInput.value.trim();
@@ -64,12 +79,11 @@ socket.on('gameJoined', (data) => {
 });
 
 socket.on('gameStarted', () => {
-    alert('Game started!');
-    
+    showToast('Game started!');
 });
 
 socket.on('joinError', (message) => {
-    alert(message);
+    showToast(message);
 });
 
 function updatePlayerList(players) {
@@ -85,4 +99,12 @@ function updatePlayerList(players) {
     } else if (isHost) {
         startGameBtn.disabled = true;
     }
+}
+
+function showToast(message) {
+    toast.textContent = message;
+    toast.className = 'toast show';
+    setTimeout(() => {
+        toast.className = 'toast';
+    }, 3000);
 }
