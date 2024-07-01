@@ -1,0 +1,21 @@
+#GameId{
+    justify-content:center;
+}
+
+#playerList{
+    float:left;
+    border:1px solid black;
+    height:200px;
+    width:200px;
+}
+
+#playerList ul{
+    list-style:none;
+}
+
+#MazeDiagram{
+    border:1px solid black;
+    width: 1000px;
+    height:200px;
+
+}

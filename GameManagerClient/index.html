@@ -3,24 +3,36 @@
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="utf-8" />
-    <title>Maize</title>
+    <title>Maze Game</title>
+    <link rel="stylesheet" href="style.css" />
     <script defer src="script.js"></script>
 
 </head>
 <body>
     <header>
-        <h1 id="GameId"></h1>
+        <h2 id="GameId"></h2>
     </header>
 
 
     <main>
+        <div id="Container">
+            <div id="playerList">
+            </div>
 
-        <div id="playerList">
+            <div id="MazeDiagram">
+
+            </div>
+        </div>
+
+        <div>
+            <p>
+                <i> Timer: <span id="timer">00:00</span></i>&nbsp;&nbsp;
+                <button> Restart</button>
+                <button onclick="PauseResume()" id="PauseResume"> Pause</button>
+            </p>
         </div>
     </main>
     <footer>
     </footer>
-
-
-</body>
+    </body>
 </html>
