@@ -2,7 +2,7 @@ var GamePiece;
 var Obstacles = [];
 var testWall;
 var testWall2;
-var maze;
+var gameMaze;
 
 function startGame() {
     //GameArea.start();
@@ -10,16 +10,16 @@ function startGame() {
     GamePiece = new createPlayer(60, 60, 15, 0, 2 * Math.PI, "blue");
     //testWall = new createWall(30, 90, "red", 70, 90);
     //testWall2 = new createWall(30, 90, "red", 200, 90);
-    maze = generateMaze(720,600);
-    for(let i = 0; i < maze.length; i++){
-      for(let j = 0; j < maze[i].length; j++){
-        if(maze[i][j] == 1){
+    gameMaze = generateMaze(720,600);
+    for(let i = 0; i < gameMaze.length; i++){
+      for(let j = 0; j < gameMaze[i].length; j++){
+        if(gameMaze[i][j] == 1){
           Obstacles.push(new createWall(10, 10, "red", i, j));
         }
       }
     }
     GameArea.start();
-    //console.log(maze);
+    //console.log(gameMaze);
   }
   
 var GameArea = {
@@ -80,13 +80,64 @@ function createPlayer(x,y,radius,startAngle,endAngle,color){
   this.newPos = function(){
     this.x += this.velocityX;
     this.y += this.velocityY;
+    if(this.x >= 720){
+      this.x = 720;
+      this.velocityX = 0;
+    }
+    if(this.x < 0){
+      this.x = 0;
+      this.velocityX = 0;
+    }
+    if(this.y >= 600){
+      this.y = 600;
+      this.velocityY = 0;
+    }
+    if(this.y < 0){
+      this.y = 0;
+      this.velocityY = 0;
+    }
   }
 
   this.addForce = function(forceX, forceY){
     this.velocityX += forceX;
     this.velocityY += forceY;
   }
+
+  
 }
+
+/*function handleCollision(){
+  // Getting the coordinates of the ball's edges
+  const ballTopCoords = GamePiece.y - GamePiece.radius;
+  const ballBottomCoords = GamePiece.y + GamePiece.radius;
+  const ballLeftCoords = GamePiece.x - GamePiece.radius;
+  const ballRightCoords = GamePiece.x + GamePiece.radius;
+
+  // Getting the cell values of the maze at the ball's edges
+  const mazeAbove = gameMaze[ballTopCoords[0]][ballTopCoords[1]];
+  const mazeBelow = gameMaze[ballBottomCoords[0]][ballBottomCoords[1]];
+  const mazeLeft = gameMaze[ballLeftCoords[0]][ballLeftCoords[1]];
+  const mazeRight = gameMaze[ballRightCoords[0]][ballRightCoords[1]];
+
+  // Handling collisions with the maze walls (1 == wall, 0 == path)
+  // - For this collision handling, walls are considered to be solid and should be wider than the ball
+  if (mazeAbove === 1) {
+    GamePiece.velocityY = 0;
+    GamePiece.y = GamePiece.radius;
+  }
+  if (mazeBelow === 1) {
+    GamePiece.velocityY = 0;
+    GamePiece.y = gameMaze.length - GamePiece.radius;
+  }
+  if (mazeLeft === 1) {
+    GamePiece.velocityX = 0;
+    GamePiece.x = GamePiece.radius;
+  }
+  if (mazeRight === 1) {
+    gamePiece.velocityX = 0;
+    gamePiece.x = gameMaze[0].length - gamePiece.radius;
+  }
+}*/
 
 function applyForce(forceX, forceY) {
   this.velocityX += forceX;
@@ -140,6 +191,7 @@ function updateGameArea() {
   GameArea.clear();
   GamePiece.update();
   GamePiece.newPos();
+  //handleCollision();
   //testWall.update();
   //testWall2.update();
   for(i = 0; i < Obstacles.length; i++){
