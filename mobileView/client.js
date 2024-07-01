@@ -18,6 +18,51 @@ const toast = document.getElementById('toast');
 let currentUsername = '';
 let isHost = false;
 
+// This function sets up the socket to transmit the orientation data to the server
+// Assumes that requisite permissions have been granted
+function SetupOrientationSocket() {
+    let lastEmitTime = 0;
+
+    addEventListener('deviceorientation', (event) => {
+        const currentTime = Date.now();
+
+        // FIXME: this is potentially too fast or too slow
+        // Orientation only updates every 100ms
+        if (currentTime - lastEmitTime > 250) {
+            socket.emit('orientation', 
+            {
+                username: currentUsername,
+                orientation_data: {
+                    beta : event.beta,
+                    gamma : event.gamma
+                }
+            });
+            lastEmitTime = currentTime;
+        }
+    });
+}
+
+// Gets the orientation permission from the user, true if permission granted, false otherwise
+function RequestOrientationPermission() {
+    // FIXME: DeviceMotionEvent seems to be undefined on androids
+    if (
+        typeof DeviceMotionEvent !== 'undefined' &&
+        typeof DeviceMotionEvent.requestPermission === 'function'
+    ) {
+        DeviceMotionEvent.requestPermission()
+            .then((response) => {
+                if (response == 'granted') {
+                    SetupOrientationSocket();
+                } else {
+                    socket.emit('no-orientation');
+                }
+            })
+            .catch(console.error);
+    } else {
+        alert('DeviceMotionEvent is not defined');
+        socket.emit('no-orientation');
+    }
+}
 
 
 copyGameIdBtn.addEventListener('click', () => {
@@ -36,6 +81,8 @@ loginBtn.addEventListener('click', () => {
     if (currentUsername) {
         loginScreen.classList.add('hidden');
         lobbyScreen.classList.remove('hidden');
+
+        RequestOrientationPermission();
     }
 });
 
