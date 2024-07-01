@@ -1,4 +1,7 @@
-const socket = io();
+
+const socket = io('', {
+    path: '/socket.io'
+});
 
 const loginScreen = document.getElementById('login-screen');
 const lobbyScreen = document.getElementById('lobby-screen');
