@@ -39,6 +39,8 @@ io.on('connection', (socket) => {
         });
         socket.join(gameId);
         socket.emit('gameCreated', gameId);
+
+        console.log('gameId:', gameId, '\t|\tGame created, host: ', username);
     });
 
     socket.on('joinGame', ({ gameId, username }) => {
@@ -46,10 +48,14 @@ io.on('connection', (socket) => {
         if (game && !game.isStarted) {
             if (game.players.length >= 4) {
                 socket.emit('joinError', 'Game is already full');
+                console.log('gameId:', gameId, '\t|\tPlayer tried to join a full game, username: ', username);
             } else if (game.players.map(player => player.username).includes(username)) {
                 socket.emit('joinError', 'Username is already taken');
+                console.log('gameId:', gameId, '\t|\tPlayer tried to join with an existing username: ', username);
             } else {
                 const player = new Player(username, socket);
+
+                console.log('gameId:', gameId, '\t|\tPlayer joined the game, username: ', username, ', playerCount: ', game.players.length + 1);
 
                 game.players.push(player);
                 game.sockets.push(socket);
@@ -59,6 +65,7 @@ io.on('connection', (socket) => {
             }
         } else {
             socket.emit('joinError', 'Game not found or already started');
+            console.log('gameId:', gameId, '\t|\tPlayer tried to join a non-existent or started game, username: ', username);
         }
     });
 
@@ -68,6 +75,7 @@ io.on('connection', (socket) => {
         if (game && socket.id === game.host) {
             game.isStarted = true;
             io.to(gameId).emit('gameStarted');
+            console.log('gameId:', gameId, '\t|\tGame started');
         }
     });
 

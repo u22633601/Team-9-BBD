@@ -8,8 +8,6 @@ class Player {
         this.gamma = 0;
 
         this.setupOrientationDataReception();
-
-        console.log('Player created, username:', username);
     }
 
     setupOrientationDataReception() {
