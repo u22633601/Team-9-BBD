@@ -2,14 +2,24 @@ var GamePiece;
 var Obstacles = [];
 var testWall;
 var testWall2;
+var maze;
 
 function startGame() {
     //GameArea.start();
     //GamePiece = new createWall(30, 30, "blue", 10, 120);
     GamePiece = new createPlayer(60, 60, 15, 0, 2 * Math.PI, "blue");
-    testWall = new createWall(30, 90, "red", 70, 90);
-    testWall2 = new createWall(30, 90, "red", 200, 90);
+    //testWall = new createWall(30, 90, "red", 70, 90);
+    //testWall2 = new createWall(30, 90, "red", 200, 90);
+    maze = generateMaze(720,600);
+    for(let i = 0; i < maze.length; i++){
+      for(let j = 0; j < maze[i].length; j++){
+        if(maze[i][j] == 1){
+          Obstacles.push(new createWall(10, 10, "red", i, j));
+        }
+      }
+    }
     GameArea.start();
+    //console.log(maze);
   }
   
 var GameArea = {
@@ -27,10 +37,10 @@ var GameArea = {
   }
 }
 
-/*function everyinterval(n) {
+function everyinterval(n) {
   if ((GameArea.frameNo / n) % 1 == 0) {return true;}
   return false;
-}*/
+}
 
 function renderBall(x,y,radius,color){
   ctx = GameArea.context;
@@ -108,12 +118,32 @@ function moveright() {
   GamePiece.addForce(1,0);
 }
 
+function generateMaze(sizeX, sizeY) {
+  // Stub: returns box maze (walls on the perimeter, path in the middle)
+  const maze = [];
+
+  for (let i = 0; i < sizeX; i++) {
+    maze.push([]);
+    for (let j = 0; j < sizeY; j++) {
+      if (i === 0 || i === sizeX - 1 || j === 0 || j === sizeY - 1) {
+        maze[i].push(1);
+      } else {
+        maze[i].push(0);
+      }
+    }
+  }
+  return maze;
+}
+
 
 function updateGameArea() {
   GameArea.clear();
   GamePiece.update();
   GamePiece.newPos();
-  testWall.update();
-  testWall2.update();
+  //testWall.update();
+  //testWall2.update();
+  for(i = 0; i < Obstacles.length; i++){
+    Obstacles[i].update();
+  }
   
 }
