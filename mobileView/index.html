@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multiplayer Game</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="login-screen" class="screen">
+        <h1>Welcome to the Game</h1>
+        <input type="text" id="username" placeholder="Enter your username">
+        <button id="login-btn">Login</button>
+    </div>
+
+    <div id="lobby-screen" class="screen hidden">
+        <h2>Lobby</h2>
+        <button id="create-game-btn">Create New Game</button>
+        <div>
+            <input type="text" id="game-id-input" placeholder="Enter Game ID">
+            <button id="join-game-btn">Join Game</button>
+        </div>
+    </div>
+
+    <div id="waiting-screen" class="screen hidden">
+        <h2>Waiting for Players</h2>
+        <p>Game ID: <span id="game-id-display"></span> <button id="copy-game-id-btn">Copy</button></p>
+        <p>Players:</p>
+        <ul id="player-list"></ul>
+        <button id="start-game-btn" class="hidden">Start Game</button>
+    </div>
+    <div id="toast" class="toast"></div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.3.2/socket.io.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
