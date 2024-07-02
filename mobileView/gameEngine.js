@@ -199,3 +199,5 @@ function updateGameArea() {
   }
   
 }
+
+//module.exports = startGame;

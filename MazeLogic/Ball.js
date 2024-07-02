@@ -1,6 +1,6 @@
 // Class that generates a ball object (a ball with a position and velocity)
 // - Simulates constant acceleration movement of the ball through them maze
-export class Ball {
+class Ball {
 	constructor(x, y, radius) {
 		this.x = x;
 		this.y = y;

@@ -15,6 +15,8 @@ const startGameBtn = document.getElementById('start-game-btn');
 const copyGameIdBtn = document.getElementById('copy-game-id-btn');
 const toast = document.getElementById('toast');
 
+//const startGame = require('../Graphics/gameEngine.js');
+
 let currentUsername = '';
 let isHost = false;
 
@@ -128,6 +130,7 @@ socket.on('gameJoined', (data) => {
 
 socket.on('gameStarted', () => {
     showToast('Game started!');
+    startGame();
 });
 
 socket.on('joinError', (message) => {
