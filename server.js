@@ -166,9 +166,14 @@ io.on('connection', (socket) => {
 			});
 
 			// Start timer for this game
-			setInterval(() => {
+			let gameTimerId = setInterval(() => {
 				console.log("<", gameId, "> Time Left: ", timeLeft);
 				timeLeft -= 1;
+
+				// Stop the timer when time runs out
+				if (timeLeft <= 0) {
+					clearInterval(gameTimerId);
+				}
 			}, 1000);
 
 			// Start game loop for this game (60 frames per seconds)
