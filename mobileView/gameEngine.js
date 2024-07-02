@@ -5,6 +5,7 @@ var testWall2;
 var gameMaze;
 
 function startGame() {
+  removeOtherScreens();
     //GameArea.start();
     //GamePiece = new createWall(30, 30, "blue", 10, 120);
     GamePiece = new createPlayer(60, 60, 15, 0, 2 * Math.PI, "blue");
@@ -21,6 +22,20 @@ function startGame() {
     GameArea.start();
     //console.log(gameMaze);
   }
+
+  function removeOtherScreens() {
+    // Hide all screens
+    document.getElementById('login-screen').classList.add('hidden');
+    document.getElementById('lobby-screen').classList.add('hidden');
+    document.getElementById('waiting-screen').classList.add('hidden');
+
+    // Show the game canvas
+    //GameArea.canvas.classList.remove('hidden');
+
+    // Optionally, you can adjust the canvas size to fill the screen
+    //GameArea.canvas.style.width = '100vw';
+    //GameArea.canvas.style.height = '100vh';
+}
   
 var GameArea = {
   canvas : document.createElement("canvas"),
