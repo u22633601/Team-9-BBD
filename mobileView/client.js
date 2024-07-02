@@ -154,30 +154,30 @@ socket.on('initGameState', (state) => {
     showToast('Game started!');
     console.log('Game state: ', state);
     console.log("Ball's current position: ", state.ball.x, state.ball.y);
-    startGame(state.ball.x, state.ball.y, state.ball.radius, state.maze.map, state.hole.x, state.hole.y, state.hole.radius);
+    startGame(state.ball.x, state.ball.y, state.ball.radius, state.maze, state.hole.x, state.hole.y, state.hole.radius);
 });
 
 socket.on('joinError', (message) => {
     showToast(message);
 });
 
-socket.on('gameOver', (data) => {
-    if (data.win) {
-        // showToast('You win!');
-        winLoseMessage.textContent = 'You win!';
-    } else {
-        // showToast('You lose!');
-        winLoseMessage.textContent = 'You lose!';
-    }
+// socket.on('gameOver', (data) => {
+//     if (data.win) {
+//         // showToast('You win!');
+//         winLoseMessage.textContent = 'You win!';
+//     } else {
+//         // showToast('You lose!');
+//         winLoseMessage.textContent = 'You lose!';
+//     }
 
-    // FIXME: this shows the win/lose screen but doesnt hide anything, fix this
-    timerDisplay.classList.add("hidden");
-    winLoseScreen.classList.remove('hidden');
-});
+//     // FIXME: this shows the win/lose screen but doesnt hide anything, fix this
+//     timerDisplay.classList.add("hidden");
+//     winLoseScreen.classList.remove('hidden');
+// });
 
-socket.on('updateTime', (timeLeft) => {
-    timerDisplay.textContent = `Time Left: ${timeLeft}s`;
-});
+// socket.on('updateTime', (timeLeft) => {
+    // timerDisplay.textContent = `Time Left: ${timeLeft}s`;
+// });
 
 socket.on('gameOver', (data) => {
     if (data.win) {
@@ -194,7 +194,7 @@ socket.on('updateGameState', (state) => {
 
     timer = state.timeLeft;
     ball = state.ball;
-    timerDisplay.textContent = `Time Left: ${timer}s`; // Update the timer display
+    // timerDisplay.textContent = `Time Left: ${timer}s`; // Update the timer display
   });
 
 socket.on('updateGameState', (state) => {

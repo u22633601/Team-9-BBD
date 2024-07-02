@@ -3,7 +3,7 @@ class Maze {
 	constructor(sizeX, sizeY) {
 		// Generate a maze
 		// Create a 2D array of cells (1 = wall, 0 = path)
-		this.map = this.generateMaze(sizeX, sizeY, 0, 0, sizeX - 1, sizeY - 1);
+		this.map = this.generateMaze(sizeX, sizeY, 1, 1, sizeX - 2, sizeY - 2);
 	}
 
 	// Generate a 2D array of cells with walls and paths (1 = wall, 0 = path)
@@ -35,7 +35,7 @@ class Maze {
                 let ny = y + neighbor.dy;
 
                 // Check if the neighbor is within bounds and is a wall
-                if (nx >= 0 && nx < rows && ny >= 0 && ny < cols && grid[nx][ny]) {
+                if (nx >= 1 && nx < rows-1 && ny >= 1 && ny < cols-1 && grid[nx][ny]) {
                     // Remove the wall between current cell and the neighbor
                     grid[x + neighbor.dx / 2][y + neighbor.dy / 2] = 0;
                     dfs(nx, ny); // Recursively visit the neighbor
@@ -47,14 +47,12 @@ class Maze {
         dfs(startX, startY);
 
         // Optionally mark the finish position (if needed)
-        if (finishX >= 0 && finishX < rows && finishY >= 0 && finishY < cols) {
+        if (finishX >= 1 && finishX < rows-1 && finishY >= 1 && finishY < cols-1) {
             grid[finishX][finishY] = 2; // Mark finish cell (2 represents finish)
         }
 
         return grid;
     }
-
-
 }
 
 module.exports = Maze; // Export using CommonJS syntax

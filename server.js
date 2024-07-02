@@ -39,7 +39,6 @@ io.on('connection', (socket) => {
 
 		const player = new Player(username, socket);
 
-        const maze = new Maze(15, 15);
 
         games.set(gameId, { 
             players: [player], 
@@ -47,7 +46,6 @@ io.on('connection', (socket) => {
             sockets: [socket],
             isStarted: false,
             host: socket.id,
-            maze: maze
         });
         socket.join(gameId);
         socket.emit('gameCreated', gameId);
@@ -144,7 +142,11 @@ io.on('connection', (socket) => {
 			// Initialise game state variables: Ball, Maze, Hole
 			ball = new Ball(50, 50, 20);
 			hole = new MazeObject(20, 20, 10);
-			maze = new Maze(100, 100);
+			// maze = new Maze(100, 100);
+			const maze = new Maze(15, 15);
+
+			game.maze = maze;
+
 			timeLeft = 5;
 
 			console.log(
@@ -164,7 +166,7 @@ io.on('connection', (socket) => {
 			io.to(gameId).emit('initGameState', {
 				ball: ball,
 				hole: hole,
-				maze: maze,
+				maze: maze.map,
 				timeLeft: timeLeft,
 			});
 

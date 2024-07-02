@@ -20,7 +20,7 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    padding: 20px;
+    /* padding: 20px; */
 }
 
 .screen {
@@ -148,6 +148,14 @@ button:disabled {
 .toast.show {
     visibility: visible;
     animation: fadeInOut 3s;
+}
+
+.game-canvas{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* width: 100vmin; */
+    /* height: 100vmin; */
 }
 
 @keyframes fadeInOut {
