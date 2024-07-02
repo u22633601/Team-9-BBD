@@ -16,7 +16,7 @@ class Player {
             this.gamma = packet.orientation_data.gamma;
             
             // console.log('Player: ', this.username, '\t|\torientation', this.gamma, this.beta);
-            // console.log('Player: ', this.username, '\t|\tscaled-orientation', this.getOrientation());
+            console.log('Player: ', this.username, '\t|\tscaled-orientation', this.getOrientation());
         });
     }
 

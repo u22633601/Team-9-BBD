@@ -9,7 +9,11 @@ const https = require('https');
 const socketIo = require('socket.io');
 const path = require('path');
 const fs = require('fs');
+
 const Player = require('./MazeLogic/Player.js');
+const handleCollision = require('./MazeLogic/CollisionHandling.js');
+const Maze = require('./MazeLogic/Maze.js');
+const Ball = require('./MazeLogic/Ball.js');
 
 var options = {
 	key: fs.readFileSync('certs/mazegame.key'),

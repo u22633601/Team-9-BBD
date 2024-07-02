@@ -44,11 +44,8 @@ function SetupOrientationSocket() {
 
 // Gets the orientation permission from the user, true if permission granted, false otherwise
 function RequestOrientationPermission() {
-    // FIXME: DeviceMotionEvent seems to be undefined on androids
-    if (
-        typeof DeviceMotionEvent !== 'undefined' &&
-        typeof DeviceMotionEvent.requestPermission === 'function'
-    ) {
+    if (typeof DeviceMotionEvent !== 'undefined') {
+        if(typeof DeviceMotionEvent.requestPermission === 'function'){
         DeviceMotionEvent.requestPermission()
             .then((response) => {
                 if (response == 'granted') {
@@ -58,6 +55,10 @@ function RequestOrientationPermission() {
                 }
             })
             .catch(console.error);
+        }
+        else{
+            SetupOrientationSocket();
+        }
     } else {
         alert('DeviceMotionEvent is not defined');
         socket.emit('no-orientation');

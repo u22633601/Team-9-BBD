@@ -25,3 +25,5 @@ class Maze {
 		}
 	}
 }
+
+module.exports = Maze; // Export using CommonJS syntax

@@ -30,3 +30,5 @@ function handleCollision(ball, maze) {
 		ball.x = maze[0].length - ball.radius;
 	}
 }
+
+module.exports = handleCollision; // Export using CommonJS syntax
