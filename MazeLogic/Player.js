@@ -27,8 +27,8 @@ class Player {
     // If the device is tilted forward, y will be between 0 and 1, backward y will be between -1 and 0
     getOrientation() {
         return {
-            x: this.gamma / 90,
-            y: this.beta / 90
+            x: this.beta / 90,
+            y: this.gamma / 90
         };
     }  
 }
