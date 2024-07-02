@@ -23,6 +23,11 @@ class Ball extends MazeObject {
 	updatePosition() {
 		this.x += this.velocityX;
 		this.y += this.velocityY;
+
+	}
+
+	getFuturePosition() {
+		return { x: this.x + this.velocityX, y: this.y + this.velocityY };
 	}
 }
 

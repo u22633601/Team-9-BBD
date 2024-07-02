@@ -189,15 +189,35 @@ io.on('connection', (socket) => {
 				}
 
 				// Update ball velocity and position based on resultant force vector
+				let futureCoordinates = ball.getFuturePosition();
+
+				let updatePosition = true
+				for (let i = 0; i < maze.map.length; i++) {
+					for (let j = 0; j < maze.map[i].length; j++) {
+						if (maze.map[i][j] == 1) {
+							if ((futureCoordinates.x >= j - 5 && futureCoordinates.x <= j + 5) || (futureCoordinates.y >= i - 5 && futureCoordinates.y <= i + 5)) {
+								// Reverse applied force
+								console.log("Collision detected at maze wall")
+								resultantForce.x = -resultantForce.x;
+								resultantForce.y = -resultantForce.y;
+
+								// Set velocities to 0
+								ball.velocityX = 0;
+								ball.velocityY = 0;
+							}
+						}
+					}
+				}
+
 				ball.applyForce(resultantForce.x, resultantForce.y);
 				ball.updatePosition();
-
+				
 				// Check for collision with maze walls and hole (and updates ball position and velocity accordingly)
-				let state = handleMazeCollision(ball, maze.map);
-				ball.x = state.x;
-				ball.y = state.y;
-				ball.velocityX = state.velocityX;
-				ball.velocityY = state.velocityY;
+				// let state = handleMazeCollision(ball, maze.map);
+				// ball.x = state.x;
+				// ball.y = state.y;	
+				// ball.velocityX = state.velocityX;
+				// ball.velocityY = state.velocityY;
 				// console.log("Ball's current velocity: ", ball.velocityX, ball.velocityY);
 
 				// Check for win condition
