@@ -2,16 +2,15 @@ var GamePiece;
 var Obstacles = [];
 var testWall;
 var testWall2;
-var gameMaze;
+//var gameMaze;
+var gameHole;
 
-function startGame() {
+function startGame(ballX, ballY, ballRadius, gameMaze, holeX, holeY, holeRadius) {
   removeOtherScreens();
-    //GameArea.start();
-    //GamePiece = new createWall(30, 30, "blue", 10, 120);
-    GamePiece = new createPlayer(60, 60, 15, 0, 2 * Math.PI, "blue");
-    //testWall = new createWall(30, 90, "red", 70, 90);
-    //testWall2 = new createWall(30, 90, "red", 200, 90);
-    gameMaze = generateMaze(720,600);
+    //GamePiece = new createPlayer(60, 60, 15, 0, 2 * Math.PI, "blue");
+    GamePiece = new createPlayer(ballX, ballY, ballRadius, 0, 2 * Math.PI, "green");
+    gameHole = new createPlayer(holeX, holeY, holeRadius, 0, 2 * Math.PI, "black");
+    //gameMaze = generateMaze(720,600);
     for(let i = 0; i < gameMaze.length; i++){
       for(let j = 0; j < gameMaze[i].length; j++){
         if(gameMaze[i][j] == 1){
@@ -205,6 +204,7 @@ function generateMaze(sizeX, sizeY) {
 function updateGameArea() {
   GameArea.clear();
   GamePiece.update();
+  gameHole.update();
   //GamePiece.newPos();
   //handleCollision();
   //testWall.update();

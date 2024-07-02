@@ -139,10 +139,10 @@ io.on('connection', (socket) => {
 			game.isStarted = true;
 
 			// Initialise game state variables: Ball, Maze, Hole
-			ball = new Ball(0, 0, 1);
-			hole = new MazeObject(5, 5, 1);
-			maze = new Maze(10, 10);
-			timeLeft = 500;
+			ball = new Ball(50, 50, 20);
+			hole = new MazeObject(20, 20, 10);
+			maze = new Maze(100, 100);
+			timeLeft = 5;
 
 			console.log(
 				'gameId:',
@@ -153,8 +153,6 @@ io.on('connection', (socket) => {
 				ball,
 				'\n Hole: ',
 				hole,
-				'\n Maze: ',
-				maze,
 				'\n Time Left: ',
 				timeLeft
 			);
@@ -167,48 +165,58 @@ io.on('connection', (socket) => {
 				timeLeft: timeLeft,
 			});
 
-			// // Start timer for this game
-			// setInterval(() => {
-			// 	timeLeft -= 1;
-			// }, 1000);
+			// Start timer for this game
+			let gameTimerId = setInterval(() => {
+				console.log("<", gameId, "> Time Left: ", timeLeft);
+				timeLeft -= 1;
 
-			// // Start game loop for this game (60 frames per seconds)
-			// setInterval(() => {
-			// 	// Collect all orientation data from all players
-			// 	let resultantForce = { x: 0, y: 0 };
-			// 	for (let player of game.players) {
-			// 		// Generate resultant force vector from all players' orientation data
-			// 		let orientation = player.getOrientation();
-			// 		resultantForce.x += player.x;
-			// 		resultantForce.y += orientation.y;
-			// 	}
+				// Stop the timer when time runs out
+				if (timeLeft <= 0) {
+					clearInterval(gameTimerId);
+				}
+			}, 1000);
 
-			// 	// Update ball velocity and position based on resultant force vector
-			// 	ball.applyForce(resultantForce.x, resultantForce.y);
-			// 	ball.updatePosition();
+			// Start game loop for this game (60 frames per seconds)
+			gameLoopId = setInterval(() => {
+				// Collect all orientation data from all players
+				let resultantForce = { x: 0, y: 0 };
+				for (let player of game.players) {
+					// Generate resultant force vector from all players' orientation data (needs conversion from angles to force x and y vectors)
+					let orientation = player.getOrientation();
+					resultantForce.x += orientation.x;
+					resultantForce.y += orientation.y;
+				}
 
-			// 	// Check for collision with maze walls and hole (and updates ball position and velocity accordingly)
-			// 	console.log('Checking maze collision');
-			// 	handleMazeCollision(ball, maze);
+				// Update ball velocity and position based on resultant force vector
+				ball.applyForce(resultantForce.x, resultantForce.y);
+				ball.updatePosition();
 
-			// 	// Check for win condition
-			// 	console.log('Checking win condition');
-			// 	if (timeLeft <= 0) {
-			// 		// Game over, time's up -> Emit game over event to all players (loss)
-			// 		console.log('Game ID: ', gameId, " | Time's up, game over (loss)");
-			// 		io.to(gameId).emit('gameOver', { win: false });
-			// 	} else if (checkMarkerCollision(ball, hole)) {
-			// 		// Game over, players win -> Emit game over event to all players (win)
-			// 		console.log('Game ID: ', gameId, " | Time's up, game over (loss)");
-			// 		io.to(gameId).emit('gameOver', { win: true });
-			// 	} else {
-			// 		// Game still in progress - emit updated game state to all players
-			// 		io.to(gameId).emit('updateGameState', {
-			// 			ball: ball,
-			// 			timeLeft: timeLeft,
-			// 		});
-			// 	}
-			// }, 1000 / 60);
+				// Check for collision with maze walls and hole (and updates ball position and velocity accordingly)
+				handleMazeCollision(ball, maze);
+
+				// Check for win condition
+				if (timeLeft <= 0) {
+					// Game over, time's up -> Emit game over event to all players (loss)
+					console.log('Game ID: ', gameId, " | Time's up, game over (loss)");
+					io.to(gameId).emit('gameOver', { win: false });
+
+					// Stop the game loop
+					clearInterval(gameLoopId);
+				} else if (checkMarkerCollision(ball, hole)) {
+					// Game over, players win -> Emit game over event to all players (win)
+					console.log('Game ID: ', gameId, " | Ball reached the hole, game over (win)");
+					io.to(gameId).emit('gameOver', { win: true });
+
+					// Stop the game loop
+					clearInterval(gameLoopId);
+				} else {
+					// Game still in progress - emit updated game state to all players
+					io.to(gameId).emit('updateGameState', {
+						ball: ball,
+						timeLeft: timeLeft,
+					});
+				}
+			}, 1000 / 60);
 		}
 	});
 
