@@ -22,6 +22,8 @@ const playAgainBtn = document.getElementById('play-again-btn');
 const viewGameBtn = document.getElementById('view-game-btn');
 const viewerGameIdInput = document.getElementById('viewer-game-id-input');
 
+const timerDisplay = document.getElementById('timer-display');
+
 let currentUsername = '';
 let isHost = false;
 
@@ -169,8 +171,31 @@ socket.on('gameOver', (data) => {
     }
 
     // FIXME: this shows the win/lose screen but doesnt hide anything, fix this
+    timerDisplay.classList.add("hidden");
     winLoseScreen.classList.remove('hidden');
 });
+
+socket.on('updateTime', (timeLeft) => {
+    timerDisplay.textContent = `Time Left: ${timeLeft}s`;
+});
+
+socket.on('gameOver', (data) => {
+    if (data.win) {
+      showToast('You win!');
+    } else {
+      showToast('You lose!');
+    }
+    // Optionally, you can reset the game state or navigate back to the lobby
+  });
+
+socket.on('updateGameState', (state) => {
+    console.log('Time left: ', state.timeLeft);
+    console.log("Ball's current position: ", state.ball.x, state.ball.y);
+
+    timer = state.timeLeft;
+    ball = state.ball;
+    timerDisplay.textContent = `Time Left: ${timer}s`; // Update the timer display
+  });
 
 socket.on('updateGameState', (state) => {
     console.log('Time left: ', state.timeLeft);
@@ -201,7 +226,7 @@ function updatePlayerList(players, viewers = []) {
     }
     playerList.appendChild(viewerList);
 
-    if (isHost && players.length >= 2) {
+    if (isHost && players.length >= 1) {
         startGameBtn.disabled = false;
     } else if (isHost) {
         startGameBtn.disabled = true;
