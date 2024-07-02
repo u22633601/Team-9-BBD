@@ -35,11 +35,14 @@ io.on('connection', (socket) => {
 
         const player = new Player(username, socket);
 
+        const maze = new Maze(15, 15);
+
         games.set(gameId, { 
             players: [player], 
             sockets: [socket],
             isStarted: false,
-            host: socket.id
+            host: socket.id,
+            maze: maze
         });
         socket.join(gameId);
         socket.emit('gameCreated', gameId);

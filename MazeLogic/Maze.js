@@ -3,7 +3,7 @@ class Maze {
 	constructor(sizeX, sizeY) {
 		// Generate a maze
 		// Create a 2D array of cells (1 = wall, 0 = path)
-		this.map = this.generateMaze(sizeX, sizeY);
+		this.map = this.generateMaze(sizeX, sizeY, 0, 0, sizeX - 1, sizeY - 1);
 	}
 
 	// Generate a 2D array of cells with walls and paths (1 = wall, 0 = path)
