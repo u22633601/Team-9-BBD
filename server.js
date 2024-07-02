@@ -39,17 +39,41 @@ io.on('connection', (socket) => {
 
 		const player = new Player(username, socket);
 
-		games.set(gameId, {
-			players: [player],
-			sockets: [socket],
-			isStarted: false,
-			host: socket.id,
-		});
-		socket.join(gameId);
-		socket.emit('gameCreated', gameId);
+        games.set(gameId, { 
+            players: [player], 
+            viewers:[],
+            sockets: [socket],
+            isStarted: false,
+            host: socket.id
+        });
+        socket.join(gameId);
+        socket.emit('gameCreated', gameId);
 
-		console.log('gameId:', gameId, '\t|\tGame created, host: ', username);
-	});
+        console.log('gameId:', gameId, '\t|\tGame created, host: ', username);
+    });
+
+    socket.on('viewGame', ({ gameId, username }) => {
+        const game = games.get(gameId);
+        if (game) {
+            if (game.players.map(player => player.username).includes(username) ||
+                game.viewers.includes(username)) {
+                socket.emit('joinError', 'Username is already taken');
+            } else {
+                game.viewers.push(username);
+                socket.join(gameId);
+                io.to(gameId).emit('playerJoined', game.players.map(player => player.username));
+                socket.emit('gameJoined', {
+                    gameId,
+                    players: game.players.map(player => player.username),
+                    viewers: game.viewers,
+                    isHost: false
+                });
+                console.log('gameId:', gameId, '\t|\tViewer joined the game, username: ', username);
+            }
+        } else {
+            socket.emit('joinError', 'Game not found');
+        }
+    });
 
 	socket.on('joinGame', ({ gameId, username }) => {
 		const game = games.get(gameId);
@@ -94,6 +118,7 @@ io.on('connection', (socket) => {
 				socket.emit('gameJoined', {
 					gameId,
 					players: game.players.map((player) => player.username),
+                    viewers: game.viewers,
 					isHost: false,
 				});
 			}

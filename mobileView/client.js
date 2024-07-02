@@ -15,7 +15,8 @@ const startGameBtn = document.getElementById('start-game-btn');
 const copyGameIdBtn = document.getElementById('copy-game-id-btn');
 const toast = document.getElementById('toast');
 
-//const startGame = require('../Graphics/gameEngine.js');
+const viewGameBtn = document.getElementById('view-game-btn');
+const viewerGameIdInput = document.getElementById('viewer-game-id-input');
 
 let currentUsername = '';
 let isHost = false;
@@ -101,6 +102,13 @@ joinGameBtn.addEventListener('click', () => {
     }
 });
 
+viewGameBtn.addEventListener('click', () => {
+    const gameId = gameIdInput.value.trim();
+    if (gameId) {
+        socket.emit('viewGame', { gameId, username: currentUsername });
+    }
+});
+
 startGameBtn.addEventListener('click', () => {
     socket.emit('startGame', gameIdDisplay.textContent);
 });
@@ -120,7 +128,7 @@ socket.on('playerJoined', (players) => {
 socket.on('gameJoined', (data) => {
     isHost = data.isHost;
     gameIdDisplay.textContent = data.gameId;
-    updatePlayerList(data.players);
+    updatePlayerList(data.players, data.viewers);
     lobbyScreen.classList.add('hidden');
     waitingScreen.classList.remove('hidden');
     if (isHost) {
@@ -137,13 +145,24 @@ socket.on('joinError', (message) => {
     showToast(message);
 });
 
-function updatePlayerList(players) {
-    playerList.innerHTML = '';
+function updatePlayerList(players, viewers = []) {
+    playerList.innerHTML = '<h3>Players:</h3>';
     players.forEach(player => {
         const li = document.createElement('li');
         li.textContent = player;
         playerList.appendChild(li);
     });
+
+    const viewerList = document.createElement('ul');
+    if (viewers && viewers.length > 0) {
+        viewerList.innerHTML = '<h3>Viewers:</h3>';
+        viewers.forEach(viewer => {
+            const li = document.createElement('li');
+            li.textContent = viewer;
+            viewerList.appendChild(li);
+        });
+    }
+    playerList.appendChild(viewerList);
 
     if (isHost && players.length >= 2) {
         startGameBtn.disabled = false;
