@@ -166,12 +166,12 @@ socket.on('updateTime', (timeLeft) => {
 
 socket.on('gameOver', (data) => {
     if (data.win) {
-        showToast('You win!');
+      showToast('You win!');
     } else {
-        showToast('You lose!');
+      showToast('You lose!');
     }
     // Optionally, you can reset the game state or navigate back to the lobby
-});
+  });
 
 socket.on('updateGameState', (state) => {
     console.log('Time left: ', state.timeLeft);
@@ -180,7 +180,7 @@ socket.on('updateGameState', (state) => {
     timer = state.timeLeft;
     ball = state.ball;
     timerDisplay.textContent = `Time Left: ${timer}s`; // Update the timer display
-});
+  });
 
 socket.on('updateGameState', (state) => {
     console.log('Time left: ', state.timeLeft);
@@ -211,7 +211,7 @@ function updatePlayerList(players, viewers = []) {
     }
     playerList.appendChild(viewerList);
 
-    if (isHost && players.length >= 2) {
+    if (isHost && players.length >= 1) {
         startGameBtn.disabled = false;
     } else if (isHost) {
         startGameBtn.disabled = true;
