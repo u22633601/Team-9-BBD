@@ -139,7 +139,7 @@ io.on('connection', (socket) => {
 			game.isStarted = true;
 
 			// Initialise game state variables: Ball, Maze, Hole
-			ball = new Ball(50, 50, 1);
+			ball = new Ball(50, 50, 20);
 			hole = new MazeObject(20, 20, 1);
 			maze = new Maze(100, 100);
 			timeLeft = 5;
