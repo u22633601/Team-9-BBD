@@ -171,6 +171,7 @@ socket.on('gameOver', (data) => {
     }
 
     // FIXME: this shows the win/lose screen but doesnt hide anything, fix this
+    timerDisplay.classList.add("hidden");
     winLoseScreen.classList.remove('hidden');
 });
 
