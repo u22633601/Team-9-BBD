@@ -190,7 +190,7 @@ function updatePlayerList(players, viewers = []) {
     }
     playerList.appendChild(viewerList);
 
-    if (isHost && players.length >= 2) {
+    if (isHost && players.length >= 1) {
         startGameBtn.disabled = false;
     } else if (isHost) {
         startGameBtn.disabled = true;

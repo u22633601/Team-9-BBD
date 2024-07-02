@@ -184,8 +184,8 @@ io.on('connection', (socket) => {
 					// Generate resultant force vector from all players' orientation data (needs conversion from angles to force x and y vectors)
 					// - Invert the y-axis for the orientation data
 					let orientation = player.getOrientation();
-					resultantForce.x += orientation.x*0.0001;
-					resultantForce.y += -1*orientation.y*0.0001;
+					resultantForce.x += orientation.x*0.01	;
+					resultantForce.y += -1*orientation.y*0.01;
 				}
 
 				// Update ball velocity and position based on resultant force vector
@@ -193,7 +193,7 @@ io.on('connection', (socket) => {
 				ball.updatePosition();
 
 				// Check for collision with maze walls and hole (and updates ball position and velocity accordingly)
-				let state = handleMazeCollision(ball, maze);
+				let state = handleMazeCollision(ball, maze.map);
 				ball.x = state.x;
 				ball.y = state.y;
 				ball.velocityX = state.velocityX;
