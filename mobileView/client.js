@@ -138,6 +138,7 @@ socket.on('gameJoined', (data) => {
 
 socket.on('gameStarted', () => {
     showToast('Game started!');
+    startGame();
 });
 
 socket.on('joinError', (message) => {
