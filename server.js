@@ -37,6 +37,7 @@ io.on('connection', (socket) => {
 
         games.set(gameId, { 
             players: [player], 
+            viewers:[],
             sockets: [socket],
             isStarted: false,
             host: socket.id
@@ -47,29 +48,53 @@ io.on('connection', (socket) => {
         console.log('gameId:', gameId, '\t|\tGame created, host: ', username);
     });
 
+    socket.on('viewGame', ({ gameId, username }) => {
+        const game = games.get(gameId);
+        if (game) {
+            if (game.players.map(player => player.username).includes(username) ||
+                game.viewers.includes(username)) {
+                socket.emit('joinError', 'Username is already taken');
+            } else {
+                game.viewers.push(username);
+                socket.join(gameId);
+                io.to(gameId).emit('playerJoined', game.players.map(player => player.username));
+                socket.emit('gameJoined', {
+                    gameId,
+                    players: game.players.map(player => player.username),
+                    viewers: game.viewers,
+                    isHost: false
+                });
+                console.log('gameId:', gameId, '\t|\tViewer joined the game, username: ', username);
+            }
+        } else {
+            socket.emit('joinError', 'Game not found');
+        }
+    });
+
     socket.on('joinGame', ({ gameId, username }) => {
         const game = games.get(gameId);
         if (game && !game.isStarted) {
             if (game.players.length >= 4) {
                 socket.emit('joinError', 'Game is already full');
-                console.log('gameId:', gameId, '\t|\tPlayer tried to join a full game, username: ', username);
-            } else if (game.players.map(player => player.username).includes(username)) {
+            } else if (game.players.map(player => player.username).includes(username) ||
+                       game.viewers.includes(username)) {
                 socket.emit('joinError', 'Username is already taken');
-                console.log('gameId:', gameId, '\t|\tPlayer tried to join with an existing username: ', username);
             } else {
                 const player = new Player(username, socket);
-
-                console.log('gameId:', gameId, '\t|\tPlayer joined the game, username: ', username, ', playerCount: ', game.players.length + 1);
-
                 game.players.push(player);
                 game.sockets.push(socket);
                 socket.join(gameId);
                 io.to(gameId).emit('playerJoined', game.players.map(player => player.username));
-                socket.emit('gameJoined', { gameId, players: game.players.map(player => player.username), isHost: false });
+                socket.emit('gameJoined', {
+                    gameId,
+                    players: game.players.map(player => player.username),
+                    viewers: game.viewers,
+                    isHost: false
+                });
+                console.log('gameId:', gameId, '\t|\tPlayer joined the game, username: ', username, ', playerCount: ', game.players.length);
             }
         } else {
             socket.emit('joinError', 'Game not found or already started');
-            console.log('gameId:', gameId, '\t|\tPlayer tried to join a non-existent or started game, username: ', username);
         }
     });
 
