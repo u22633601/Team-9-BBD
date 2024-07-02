@@ -19,3 +19,5 @@ export class Ball {
 		this.y += this.velocityY;
 	}
 }
+
+module.exports = Ball; // Export using CommonJS syntax
