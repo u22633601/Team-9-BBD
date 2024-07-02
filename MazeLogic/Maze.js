@@ -53,6 +53,22 @@ class Maze {
 
         return grid;
     }
+
+ expandMatrix(matrix) {
+    const rows = matrix.length;
+    const cols = matrix[0].length;
+    const expandedMatrix = [];
+
+    for (let i = 0; i < rows * 2; i++) {
+        expandedMatrix[i] = [];
+        for (let j = 0; j < cols * 2; j++) {
+            const originalValue = matrix[Math.floor(i / 2)][Math.floor(j / 2)];
+            expandedMatrix[i][j] = originalValue;
+        }
+    }
+
+    return expandedMatrix;
+}
 }
 
 module.exports = Maze; // Export using CommonJS syntax
