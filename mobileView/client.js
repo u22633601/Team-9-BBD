@@ -153,7 +153,7 @@ socket.on('gameJoined', (data) => {
 socket.on('initGameState', (state) => {
     showToast('Game started!');
     console.log('Game state: ', state);
-    console.log("Ball's current position: ", state.ball.x, state.ball.y);
+    // console.log("Ball's current position: ", state.ball.x, state.ball.y);
     startGame(state.ball.x, state.ball.y, state.ball.radius, state.maze, state.hole.x, state.hole.y, state.hole.radius);
 });
 
@@ -189,22 +189,18 @@ socket.on('gameOver', (data) => {
   });
 
 socket.on('updateGameState', (state) => {
-    console.log('Time left: ', state.timeLeft);
+    // const coordinateLabel = document.getElementById('coordinate-display');
+    // coordinateLabel.textContent = `Ball's current position: ${state.ball.x}, ${state.ball.y}`;
+
+    // console.log('Time left: ', state.timeLeft);
     console.log("Ball's current position: ", state.ball.x, state.ball.y);
 
     timer = state.timeLeft;
-    ball = state.ball;
     // timerDisplay.textContent = `Time Left: ${timer}s`; // Update the timer display
-  });
-
-socket.on('updateGameState', (state) => {
-    console.log('Time left: ', state.timeLeft);
-    console.log("Ball's current position: ", state.ball.x, state.ball.y);
-
-    timer = state.timeLeft;
 
     // FIXME: potential issue here, double check that the ball updates correctly, might have to do a member wise assignment
     ball = state.ball;
+    updateBallPosition(ball.x, ball.y);
 });
 
 function updatePlayerList(players, viewers = []) {

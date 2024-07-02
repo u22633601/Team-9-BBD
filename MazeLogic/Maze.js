@@ -1,9 +1,17 @@
 // Class that generates a maze object (a 2D array of cells with walls and paths)
 class Maze {
-	constructor(sizeX, sizeY) {
+	constructor(sizeX, sizeY, startX, startY, finishX, finishY) {
 		// Generate a maze
 		// Create a 2D array of cells (1 = wall, 0 = path)
-		this.map = this.generateMaze(sizeX, sizeY, 1, 1, sizeX - 2, sizeY - 2);
+		this.map = this.generateMaze(sizeX, sizeY, startX, startY, finishX, finishY);
+		this.wallSize = 100/sizeX;
+	}
+
+	getMazeData(){
+		return {
+			map: this.map,
+			wallSize: this.wallSize,
+		};
 	}
 
 	// Generate a 2D array of cells with walls and paths (1 = wall, 0 = path)
@@ -20,6 +28,10 @@ class Maze {
         function dfs(x, y) {
             grid[x][y] = 0; // Mark the current cell as visited (0 represents path)
 
+			if(x == finishX && y == finishY){
+				return;
+			}
+
             // Define random order for visiting neighbors
             let neighbors = [
                 { dx: 0, dy: -2 }, // top
@@ -29,6 +41,8 @@ class Maze {
             ];
 
             neighbors.sort(() => Math.random() - 0.5); // Shuffle neighbors
+
+			console.log(neighbors);	
 
             for (let neighbor of neighbors) {
                 let nx = x + neighbor.dx;
@@ -47,9 +61,9 @@ class Maze {
         dfs(startX, startY);
 
         // Optionally mark the finish position (if needed)
-        if (finishX >= 1 && finishX < rows-1 && finishY >= 1 && finishY < cols-1) {
-            grid[finishX][finishY] = 2; // Mark finish cell (2 represents finish)
-        }
+        // if (finishX >= 1 && finishX < rows-1 && finishY >= 1 && finishY < cols-1) {
+        //     grid[finishX][finishY] = 0; 
+        // }
 
         return grid;
     }
@@ -72,3 +86,40 @@ class Maze {
 }
 
 module.exports = Maze; // Export using CommonJS syntax
+
+// class Maze {
+// 	constructor(sizeX, sizeY) {
+// 		// Generate a maze
+// 		// Create a 2D array of cells (1 = wall, 0 = path)
+// 		this.map = this.generateMaze(sizeX, sizeY);
+// 		this.wallSize = Math.round(100/sizeX);
+// 	}
+
+// 	getMazeData(){
+// 		return {
+// 			map: this.map,
+// 			wallSize: this.wallSize,
+// 		};
+// 	}
+
+// 	// Generate a 2D array of cells with walls and paths (1 = wall, 0 = path)
+// 	// - Coordinates work as follows: (0, 0) is the top-left corner of the maze
+// 	// - Moving down increases the x-coordinate, moving right increases the y-coordinate
+// 	generateMaze(sizeX, sizeY) {
+// 		// Stub: returns box maze (walls on the perimeter, path in the middle)
+// 		const maze = [];
+// 		for (let i = 0; i < sizeX; i++) {
+// 			maze.push([]);
+// 			for (let j = 0; j < sizeY; j++) {
+// 				if (i === 0 || i === sizeX - 1 || j === 0 || j === sizeY - 1) {
+// 					maze[i].push(1);
+// 				} else {
+// 					maze[i].push(0);
+// 				}
+// 			}
+// 		}
+// 		return maze;
+// 	}
+// }
+
+// module.exports = Maze; // Export using CommonJS syntax

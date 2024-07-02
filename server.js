@@ -11,7 +11,6 @@ const fs = require('fs');
 
 const Player = require('./MazeLogic/Player.js');
 const {
-	handleMazeCollision,
 	checkMarkerCollision,
 } = require('./MazeLogic/CollisionHandling.js');
 const Maze = require('./MazeLogic/Maze.js');
@@ -140,14 +139,15 @@ io.on('connection', (socket) => {
 			game.isStarted = true;
 
 			// Initialise game state variables: Ball, Maze, Hole
-			ball = new Ball(50, 50, 20);
-			hole = new MazeObject(20, 20, 10);
-			// maze = new Maze(100, 100);
-			const maze = new Maze(15, 15);
+
+			let ball = new Ball(85, 85, 2);
+			let hole = new MazeObject(12, 12, 2);
+
+			const maze = new Maze(11, 11, 1, 1, 9, 9);
 
 			game.maze = maze;
 
-			timeLeft = 5;
+			timeLeft = 500;
 
 			console.log(
 				'gameId:',
@@ -166,7 +166,7 @@ io.on('connection', (socket) => {
 			io.to(gameId).emit('initGameState', {
 				ball: ball,
 				hole: hole,
-				maze: maze.map,
+				maze: maze.getMazeData(),
 				timeLeft: timeLeft,
 			});
 
@@ -188,17 +188,51 @@ io.on('connection', (socket) => {
 				let resultantForce = { x: 0, y: 0 };
 				for (let player of game.players) {
 					// Generate resultant force vector from all players' orientation data (needs conversion from angles to force x and y vectors)
+					// - Invert the y-axis for the orientation data
 					let orientation = player.getOrientation();
-					resultantForce.x += orientation.x;
-					resultantForce.y += orientation.y;
+					resultantForce.x += orientation.x*0.01	;
+					resultantForce.y += -1*orientation.y*0.01;
 				}
 
 				// Update ball velocity and position based on resultant force vector
+				let futureCoordinates = ball.getFuturePosition();
+
+				// let updatePosition = true
+				for (let i = 0; i < maze.map.length; i++) {
+					for (let j = 0; j < maze.map[i].length; j++) {
+						if (maze.map[i][j] == 1) {
+							// if ((futureCoordinates.x >= j - 5 && futureCoordinates.x <= j + 5) || (futureCoordinates.y >= i - 5 && futureCoordinates.y <= i + 5)) {
+							// if ((futureCoordinates.x >= j * maze.wallSize - 5 && futureCoordinates.x <= j * maze.wallSize + 5) || (futureCoordinates.y >= i * maze.wallSize && futureCoordinates.y <= i * maze.wallSize)) {
+							if ((Math.abs(futureCoordinates.x - (i * maze.wallSize + maze.wallSize / 2)) < (maze.wallSize / 2 + ball.radius) && 
+								Math.abs(futureCoordinates.y - (j * maze.wallSize + maze.wallSize / 2)) < (maze.wallSize / 2 + ball.radius)) 
+							) {   		
+								// Reverse applied force
+								console.log("Collision detected at maze wall")
+								// resultantForce.x = -3 *resultantForce.x;
+								// resultantForce.y = -3*resultantForce.y;
+
+								// Set velocities to 0
+								if (Math.abs(futureCoordinates.x - (i * maze.wallSize + maze.wallSize / 2)) < (maze.wallSize / 2 + ball.radius))
+									// ball.velocityY = -ball.velocityY;
+									// ball.velocityX = -ball.velocityX;
+
+								resultantForce.x = 0;
+								resultantForce.y = 0;
+
+								ball.velocityX = 0;
+								ball.velocityY = 0;
+
+								break;
+
+								
+							}
+						}
+					}
+				}
+
 				ball.applyForce(resultantForce.x, resultantForce.y);
 				ball.updatePosition();
-
-				// Check for collision with maze walls and hole (and updates ball position and velocity accordingly)
-				handleMazeCollision(ball, maze);
+				
 
 				// Check for win condition
 				if (timeLeft <= 0) {
