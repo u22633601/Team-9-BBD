@@ -20,23 +20,36 @@ function handleMazeCollision(ball, maze) {
         coords[0] >= 0 && coords[0] < maze.length && 
         coords[1] >= 0 && coords[1] < maze[0].length;
 
+	let newBallX = ball.x;
+	let newBallY = ball.y;
+	let newBallVelocityX = ball.velocityX;
+	let newBallVelocityY = ball.velocityY;
+
     // Handling collisions with the maze walls (1 == wall, 0 == path)
-    if (isWithinBounds(ballTopCoords) && maze[ballTopCoords[1]]?.[ballTopCoords[0]] === 1) {
-        ball.velocityY = 0;
-        ball.y = ball.y + ball.radius;
+    if (isWithinBounds(ballTopCoords) && maze[ballTopCoords[1]][ballTopCoords[0]] === 1) {
+		newBallVelocityY = 0;
+        newBallY = ball.y + ball.radius;
+		console.log("Collision detected at top edge - setting y velocity to 0");
     }
-    if (isWithinBounds(ballBottomCoords) && maze[ballBottomCoords[1]]?.[ballBottomCoords[0]] === 1) {
-        ball.velocityY = 0;
-        ball.y = ball.y - ball.radius;
+    if (isWithinBounds(ballBottomCoords) && maze[ballBottomCoords[1]][ballBottomCoords[0]] === 1) {
+        newBallVelocityY = 0;
+        newBallY = ball.y - ball.radius;
+		console.log("Collision detected at bottom edge - setting y velocity to 0");
     }
-    if (isWithinBounds(ballLeftCoords) && maze[ballLeftCoords[1]]?.[ballLeftCoords[0]] === 1) {
-        ball.velocityX = 0;
-        ball.x = ball.x + ball.radius;
+    if (isWithinBounds(ballLeftCoords) && maze[ballLeftCoords[1]][ballLeftCoords[0]] === 1) {
+        newBallVelocityX = 0;
+        newBallX = ball.x + ball.radius;
+		console.log("Collision detected at left edge - setting x velocity to 0");
+
     }
-    if (isWithinBounds(ballRightCoords) && maze[ballRightCoords[1]]?.[ballRightCoords[0]] === 1) {
-        ball.velocityX = 0;
-        ball.x = ball.x - ball.radius;
+    if (isWithinBounds(ballRightCoords) && maze[ballRightCoords[1]][ballRightCoords[0]] === 1) {
+        newBallVelocityX = 0;
+        newBallX = ball.x - ball.radius;
+		console.log("Collision detected at right edge - setting x velocity to 0");
+
     }
+
+	return { x: newBallX, y: newBallY, velocityX: newBallVelocityX, velocityY: newBallVelocityY };
 }
 
 // Function to check if two maze objects (markers) overlap

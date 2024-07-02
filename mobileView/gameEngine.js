@@ -39,8 +39,8 @@ function startGame(ballX, ballY, ballRadius, gameMaze, holeX, holeY, holeRadius)
 var GameArea = {
   canvas : document.createElement("canvas"),
   start : function() {
-    this.canvas.width = 720;
-    this.canvas.height = 600;
+    this.canvas.width = 200;
+    this.canvas.height = 200;
     this.context = this.canvas.getContext("2d");
     document.body.insertBefore(this.canvas, document.body.childNodes[0]);
     this.frameNo = 0;
@@ -182,6 +182,11 @@ function moveright() {
   //myGamePiece.speedX += 1;
   GamePiece.addForce(1,0);
 }*/
+
+function updateBallPosition(ballX, ballY) {
+  GamePiece.x = ballX;
+  GamePiece.y = ballY;
+}
 
 function generateMaze(sizeX, sizeY) {
   // Stub: returns box maze (walls on the perimeter, path in the middle)

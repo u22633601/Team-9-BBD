@@ -142,7 +142,7 @@ io.on('connection', (socket) => {
 			ball = new Ball(50, 50, 20);
 			hole = new MazeObject(20, 20, 10);
 			maze = new Maze(100, 100);
-			timeLeft = 5;
+			timeLeft = 500;
 
 			console.log(
 				'gameId:',
@@ -182,9 +182,10 @@ io.on('connection', (socket) => {
 				let resultantForce = { x: 0, y: 0 };
 				for (let player of game.players) {
 					// Generate resultant force vector from all players' orientation data (needs conversion from angles to force x and y vectors)
+					// - Invert the y-axis for the orientation data
 					let orientation = player.getOrientation();
-					resultantForce.x += orientation.x;
-					resultantForce.y += orientation.y;
+					resultantForce.x += orientation.x*0.0001;
+					resultantForce.y += -1*orientation.y*0.0001;
 				}
 
 				// Update ball velocity and position based on resultant force vector
@@ -192,7 +193,12 @@ io.on('connection', (socket) => {
 				ball.updatePosition();
 
 				// Check for collision with maze walls and hole (and updates ball position and velocity accordingly)
-				handleMazeCollision(ball, maze);
+				let state = handleMazeCollision(ball, maze);
+				ball.x = state.x;
+				ball.y = state.y;
+				ball.velocityX = state.velocityX;
+				ball.velocityY = state.velocityY;
+				// console.log("Ball's current velocity: ", ball.velocityX, ball.velocityY);
 
 				// Check for win condition
 				if (timeLeft <= 0) {
