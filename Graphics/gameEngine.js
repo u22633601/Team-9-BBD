@@ -68,8 +68,8 @@ function createPlayer(x,y,radius,startAngle,endAngle,color){
   this.radius = radius;
   this.startAngle = startAngle;
   this.endAngle = endAngle;
-  this.velocityX = 0;
-  this.velocityY = 0;
+  //this.velocityX = 0;
+  //this.velocityY = 0;
   this.update = function(){
       ctx = GameArea.context;
       ctx.beginPath();
@@ -77,7 +77,7 @@ function createPlayer(x,y,radius,startAngle,endAngle,color){
       ctx.fillStyle = color;
       ctx.fill();
   }
-  this.newPos = function(){
+  /*this.newPos = function(){
     this.x += this.velocityX;
     this.y += this.velocityY;
     if(this.x >= 720){
@@ -101,7 +101,7 @@ function createPlayer(x,y,radius,startAngle,endAngle,color){
   this.addForce = function(forceX, forceY){
     this.velocityX += forceX;
     this.velocityY += forceY;
-  }
+  }*/
 
   
 }
@@ -149,7 +149,7 @@ function updatePosition() {
   this.y += this.velocityY;
 }
 
-function moveup() {
+/*function moveup() {
   //myGamePiece.speedY -= 1;
   GamePiece.addForce(0,-1);
 }
@@ -167,7 +167,7 @@ function moveleft() {
 function moveright() {
   //myGamePiece.speedX += 1;
   GamePiece.addForce(1,0);
-}
+}*/
 
 function generateMaze(sizeX, sizeY) {
   // Stub: returns box maze (walls on the perimeter, path in the middle)
@@ -190,7 +190,7 @@ function generateMaze(sizeX, sizeY) {
 function updateGameArea() {
   GameArea.clear();
   GamePiece.update();
-  GamePiece.newPos();
+  //GamePiece.newPos();
   //handleCollision();
   //testWall.update();
   //testWall2.update();
