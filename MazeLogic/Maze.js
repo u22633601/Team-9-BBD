@@ -12,7 +12,6 @@ class Maze {
 	generateMaze(sizeX, sizeY) {
 		// Stub: returns box maze (walls on the perimeter, path in the middle)
 		const maze = [];
-
 		for (let i = 0; i < sizeX; i++) {
 			maze.push([]);
 			for (let j = 0; j < sizeY; j++) {
@@ -23,6 +22,7 @@ class Maze {
 				}
 			}
 		}
+		return maze;
 	}
 }
 
