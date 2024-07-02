@@ -143,7 +143,7 @@ socket.on('initGameState', (state) => {
     showToast('Game started!');
     console.log('Game state: ', state);
     console.log("Ball's current position: ", state.ball.x, state.ball.y);
-    startGame(state.ball.x, state.ball.y, state.ball.radius, state.maze.map);
+    startGame(state.ball.x, state.ball.y, state.ball.radius, state.maze.map, state.hole.x, state.hole.y, state.hole.radius);
 });
 
 socket.on('joinError', (message) => {
