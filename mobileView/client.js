@@ -123,8 +123,10 @@ startGameBtn.addEventListener('click', () => {
 });
 
 playAgainBtn.addEventListener('click', () => {
-    winLoseScreen.classList.add('hidden');
-    lobbyScreen.classList.remove('hidden');
+    location.reload(true);
+
+    // winLoseScreen.classList.add('hidden');
+    // lobbyScreen.classList.remove('hidden');
 });
 
 socket.on('gameCreated', (gameId) => {
