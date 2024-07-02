@@ -145,7 +145,7 @@ socket.on('joinError', (message) => {
     showToast(message);
 });
 
-function updatePlayerList(players, viewers) {
+function updatePlayerList(players, viewers = []) {
     playerList.innerHTML = '<h3>Players:</h3>';
     players.forEach(player => {
         const li = document.createElement('li');
@@ -154,12 +154,14 @@ function updatePlayerList(players, viewers) {
     });
 
     const viewerList = document.createElement('ul');
-    viewerList.innerHTML = '<h3>Viewers:</h3>';
-    viewers.forEach(viewer => {
-        const li = document.createElement('li');
-        li.textContent = viewer;
-        viewerList.appendChild(li);
-    });
+    if (viewers && viewers.length > 0) {
+        viewerList.innerHTML = '<h3>Viewers:</h3>';
+        viewers.forEach(viewer => {
+            const li = document.createElement('li');
+            li.textContent = viewer;
+            viewerList.appendChild(li);
+        });
+    }
     playerList.appendChild(viewerList);
 
     if (isHost && players.length >= 2) {
