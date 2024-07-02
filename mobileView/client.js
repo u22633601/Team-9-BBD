@@ -18,6 +18,8 @@ const toast = document.getElementById('toast');
 const viewGameBtn = document.getElementById('view-game-btn');
 const viewerGameIdInput = document.getElementById('viewer-game-id-input');
 
+const timerDisplay = document.getElementById('timer-display');
+
 let currentUsername = '';
 let isHost = false;
 
@@ -156,6 +158,28 @@ socket.on('gameOver', (data) => {
     } else {
         showToast('You lose!');
     }
+});
+
+socket.on('updateTime', (timeLeft) => {
+    timerDisplay.textContent = `Time Left: ${timeLeft}s`;
+});
+
+socket.on('gameOver', (data) => {
+    if (data.win) {
+        showToast('You win!');
+    } else {
+        showToast('You lose!');
+    }
+    // Optionally, you can reset the game state or navigate back to the lobby
+});
+
+socket.on('updateGameState', (state) => {
+    console.log('Time left: ', state.timeLeft);
+    console.log("Ball's current position: ", state.ball.x, state.ball.y);
+
+    timer = state.timeLeft;
+    ball = state.ball;
+    timerDisplay.textContent = `Time Left: ${timer}s`; // Update the timer display
 });
 
 socket.on('updateGameState', (state) => {

@@ -169,6 +169,7 @@ io.on('connection', (socket) => {
 			let gameTimerId = setInterval(() => {
 				console.log("<", gameId, "> Time Left: ", timeLeft);
 				timeLeft -= 1;
+				io.to(gameId).emit('updateTime', timeLeft); // Emit timer updates
 
 				// Stop the timer when time runs out
 				if (timeLeft <= 0) {
@@ -198,9 +199,7 @@ io.on('connection', (socket) => {
 				if (timeLeft <= 0) {
 					// Game over, time's up -> Emit game over event to all players (loss)
 					console.log('Game ID: ', gameId, " | Time's up, game over (loss)");
-					io.to(gameId).emit('gameOver', { win: false });
-
-					// Stop the game loop
+					io.to(gameId).emit('gameOver', { win: false });					// Stop the game loop
 					clearInterval(gameLoopId);
 				} else if (checkMarkerCollision(ball, hole)) {
 					// Game over, players win -> Emit game over event to all players (win)
@@ -219,6 +218,7 @@ io.on('connection', (socket) => {
 			}, 1000 / 60);
 		}
 	});
+
 
 	socket.on('no-orientation', () => {
 		// TODO: disconnecting the client or otherwise preventing them from going further is probably a good idea here

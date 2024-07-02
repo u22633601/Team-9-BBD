@@ -27,13 +27,6 @@ function startGame(ballX, ballY, ballRadius, gameMaze, holeX, holeY, holeRadius)
     document.getElementById('login-screen').classList.add('hidden');
     document.getElementById('lobby-screen').classList.add('hidden');
     document.getElementById('waiting-screen').classList.add('hidden');
-
-    // Show the game canvas
-    //GameArea.canvas.classList.remove('hidden');
-
-    // Optionally, you can adjust the canvas size to fill the screen
-    //GameArea.canvas.style.width = '100vw';
-    //GameArea.canvas.style.height = '100vh';
 }
   
 var GameArea = {
