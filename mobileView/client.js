@@ -15,6 +15,10 @@ const startGameBtn = document.getElementById('start-game-btn');
 const copyGameIdBtn = document.getElementById('copy-game-id-btn');
 const toast = document.getElementById('toast');
 
+const winLoseScreen = document.getElementById('win-lose-screen');
+const winLoseMessage = document.getElementById('win-lose-message');
+const playAgainBtn = document.getElementById('play-again-btn');
+
 const viewGameBtn = document.getElementById('view-game-btn');
 const viewerGameIdInput = document.getElementById('viewer-game-id-input');
 
@@ -116,6 +120,11 @@ startGameBtn.addEventListener('click', () => {
     socket.emit('startGame', gameIdDisplay.textContent);
 });
 
+playAgainBtn.addEventListener('click', () => {
+    winLoseScreen.classList.add('hidden');
+    lobbyScreen.classList.remove('hidden');
+});
+
 socket.on('gameCreated', (gameId) => {
     gameIdDisplay.textContent = gameId;
     lobbyScreen.classList.add('hidden');
@@ -152,10 +161,15 @@ socket.on('joinError', (message) => {
 
 socket.on('gameOver', (data) => {
     if (data.win) {
-        showToast('You win!');
+        // showToast('You win!');
+        winLoseMessage.textContent = 'You win!';
     } else {
-        showToast('You lose!');
+        // showToast('You lose!');
+        winLoseMessage.textContent = 'You lose!';
     }
+
+    // FIXME: this shows the win/lose screen but doesnt hide anything, fix this
+    winLoseScreen.classList.remove('hidden');
 });
 
 socket.on('updateGameState', (state) => {
