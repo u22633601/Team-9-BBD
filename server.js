@@ -166,19 +166,24 @@ io.on('connection', (socket) => {
 			});
 
 			// Start timer for this game
-			setInterval(() => {
+			let gameTimerId = setInterval(() => {
 				console.log("<", gameId, "> Time Left: ", timeLeft);
 				timeLeft -= 1;
+
+				// Stop the timer when time runs out
+				if (timeLeft <= 0) {
+					clearInterval(gameTimerId);
+				}
 			}, 1000);
 
 			// Start game loop for this game (60 frames per seconds)
-			setInterval(() => {
+			gameLoopId = setInterval(() => {
 				// Collect all orientation data from all players
 				let resultantForce = { x: 0, y: 0 };
 				for (let player of game.players) {
 					// Generate resultant force vector from all players' orientation data (needs conversion from angles to force x and y vectors)
 					let orientation = player.getOrientation();
-					resultantForce.x += player.x;
+					resultantForce.x += orientation.x;
 					resultantForce.y += orientation.y;
 				}
 
@@ -194,10 +199,16 @@ io.on('connection', (socket) => {
 					// Game over, time's up -> Emit game over event to all players (loss)
 					console.log('Game ID: ', gameId, " | Time's up, game over (loss)");
 					io.to(gameId).emit('gameOver', { win: false });
+
+					// Stop the game loop
+					clearInterval(gameLoopId);
 				} else if (checkMarkerCollision(ball, hole)) {
 					// Game over, players win -> Emit game over event to all players (win)
-					console.log('Game ID: ', gameId, " | Time's up, game over (loss)");
+					console.log('Game ID: ', gameId, " | Ball reached the hole, game over (win)");
 					io.to(gameId).emit('gameOver', { win: true });
+
+					// Stop the game loop
+					clearInterval(gameLoopId);
 				} else {
 					// Game still in progress - emit updated game state to all players
 					io.to(gameId).emit('updateGameState', {
