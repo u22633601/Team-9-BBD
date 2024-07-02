@@ -2,24 +2,41 @@ var GamePiece;
 var Obstacles = [];
 var testWall;
 var testWall2;
-//var gameMaze;
+var gameMaze;
 var gameHole;
 
-function startGame(ballX, ballY, ballRadius, gameMaze, holeX, holeY, holeRadius) {
+var wallSize;
+
+function calculateWallSize(maze, canvasDimensions) {
+  wallSize = Math.round(canvasDimensions / maze[0].length);
+
+  for (var obstacle of Obstacles){
+    obstacle.size = wallSize;
+  }
+
+  return wallSize;
+}
+
+
+function startGame(ballX, ballY, ballRadius, a_gameMaze, holeX, holeY, holeRadius) {
+  gameMaze = a_gameMaze;
+
   removeOtherScreens();
     //GamePiece = new createPlayer(60, 60, 15, 0, 2 * Math.PI, "blue");
-    GamePiece = new createPlayer(ballX, ballY, ballRadius, 0, 2 * Math.PI, "green");
-    gameHole = new createPlayer(holeX, holeY, holeRadius, 0, 2 * Math.PI, "black");
-    //gameMaze = generateMaze(720,600);
+    GameArea.start();
+
+    let wallSize = calculateWallSize(gameMaze, GameArea.canvas.width);
+
+    GamePiece = new createPlayer(ballX, ballY, ballRadius, "#f39c12");
+    gameHole = new createPlayer(holeX, holeY, holeRadius, "#4a90e2");
+
     for(let i = 0; i < gameMaze.length; i++){
       for(let j = 0; j < gameMaze[i].length; j++){
         if(gameMaze[i][j] == 1){
-          Obstacles.push(new createWall(10, 10, "red", i, j));
+          Obstacles.push(new createWall(i, j, wallSize, "#2f2f2f"));
         }
       }
     }
-    GameArea.start();
-    //console.log(gameMaze);
   }
 
   function removeOtherScreens() {
@@ -28,12 +45,32 @@ function startGame(ballX, ballY, ballRadius, gameMaze, holeX, holeY, holeRadius)
     document.getElementById('lobby-screen').classList.add('hidden');
     document.getElementById('waiting-screen').classList.add('hidden');
 }
+
+function resizeCanvas() {
+  // Calculate 100vmin based on the current viewport size
+  let vmin = Math.min(window.innerWidth, window.innerHeight);
+
+  // Set the canvas element's width and height attributes
+  GameArea.canvas.width = vmin;
+  GameArea.canvas.height = vmin;
+
+  // Also set the canvas CSS width and height to ensure it displays correctly
+  GameArea.canvas.style.width = `${vmin}px`;
+  GameArea.canvas.style.height = `${vmin}px`;
+
+  // Calculate the wall size based on the new canvas dimensions
+  calculateWallSize(gameMaze, vmin);
+}
   
 var GameArea = {
   canvas : document.createElement("canvas"),
   start : function() {
-    this.canvas.width = 720;
-    this.canvas.height = 600;
+    this.canvas.classList.add('game-canvas');
+
+    resizeCanvas();
+
+    window.addEventListener('resize', resizeCanvas);
+
     this.context = this.canvas.getContext("2d");
     document.body.insertBefore(this.canvas, document.body.childNodes[0]);
     this.frameNo = 0;
@@ -57,94 +94,30 @@ function renderBall(x,y,radius,color){
       ctx.fill();
 }
 
-function createWall(width, height, color, x, y) {
-  this.width = width;
-  this.height = height;
+function createWall( x, y, size, color) {
+  this.size = wallSize;
   this.x = x;
   this.y = y;
   this.update = function(){
     ctx = GameArea.context;
     ctx.fillStyle = color;
-    ctx.fillRect(this.x, this.y, this.width, this.height);
+    ctx.fillRect(this.x * this.size, this.y * this.size, this.size, this.size);
   }
 }
 
-function createPlayer(x,y,radius,startAngle,endAngle,color){
+function createPlayer(x,y,radius,color){
   this.x = x;
   this.y = y;
   this.radius = radius;
-  this.startAngle = startAngle;
-  this.endAngle = endAngle;
-  //this.velocityX = 0;
-  //this.velocityY = 0;
+
   this.update = function(){
       ctx = GameArea.context;
       ctx.beginPath();
-      ctx.arc(this.x, this.y, this.radius, this.startAngle, this.endAngle);
+      ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
       ctx.fillStyle = color;
       ctx.fill();
-  }
-  /*this.newPos = function(){
-    this.x += this.velocityX;
-    this.y += this.velocityY;
-    if(this.x >= 720){
-      this.x = 720;
-      this.velocityX = 0;
-    }
-    if(this.x < 0){
-      this.x = 0;
-      this.velocityX = 0;
-    }
-    if(this.y >= 600){
-      this.y = 600;
-      this.velocityY = 0;
-    }
-    if(this.y < 0){
-      this.y = 0;
-      this.velocityY = 0;
-    }
-  }
-
-  this.addForce = function(forceX, forceY){
-    this.velocityX += forceX;
-    this.velocityY += forceY;
-  }*/
-
-  
+  } 
 }
-
-/*function handleCollision(){
-  // Getting the coordinates of the ball's edges
-  const ballTopCoords = GamePiece.y - GamePiece.radius;
-  const ballBottomCoords = GamePiece.y + GamePiece.radius;
-  const ballLeftCoords = GamePiece.x - GamePiece.radius;
-  const ballRightCoords = GamePiece.x + GamePiece.radius;
-
-  // Getting the cell values of the maze at the ball's edges
-  const mazeAbove = gameMaze[ballTopCoords[0]][ballTopCoords[1]];
-  const mazeBelow = gameMaze[ballBottomCoords[0]][ballBottomCoords[1]];
-  const mazeLeft = gameMaze[ballLeftCoords[0]][ballLeftCoords[1]];
-  const mazeRight = gameMaze[ballRightCoords[0]][ballRightCoords[1]];
-
-  // Handling collisions with the maze walls (1 == wall, 0 == path)
-  // - For this collision handling, walls are considered to be solid and should be wider than the ball
-  if (mazeAbove === 1) {
-    GamePiece.velocityY = 0;
-    GamePiece.y = GamePiece.radius;
-  }
-  if (mazeBelow === 1) {
-    GamePiece.velocityY = 0;
-    GamePiece.y = gameMaze.length - GamePiece.radius;
-  }
-  if (mazeLeft === 1) {
-    GamePiece.velocityX = 0;
-    GamePiece.x = GamePiece.radius;
-  }
-  if (mazeRight === 1) {
-    gamePiece.velocityX = 0;
-    gamePiece.x = gameMaze[0].length - gamePiece.radius;
-  }
-}*/
 
 function applyForce(forceX, forceY) {
   this.velocityX += forceX;
@@ -154,43 +127,6 @@ function applyForce(forceX, forceY) {
 function updatePosition() {
   this.x += this.velocityX;
   this.y += this.velocityY;
-}
-
-/*function moveup() {
-  //myGamePiece.speedY -= 1;
-  GamePiece.addForce(0,-1);
-}
-
-function movedown() {
-  //myGamePiece.speedY += 1;
-  GamePiece.addForce(0,1);
-}
-
-function moveleft() {
-  //myGamePiece.speedX -= 1;
-  GamePiece.addForce(-1,0);
-}
-
-function moveright() {
-  //myGamePiece.speedX += 1;
-  GamePiece.addForce(1,0);
-}*/
-
-function generateMaze(sizeX, sizeY) {
-  // Stub: returns box maze (walls on the perimeter, path in the middle)
-  const maze = [];
-
-  for (let i = 0; i < sizeX; i++) {
-    maze.push([]);
-    for (let j = 0; j < sizeY; j++) {
-      if (i === 0 || i === sizeX - 1 || j === 0 || j === sizeY - 1) {
-        maze[i].push(1);
-      } else {
-        maze[i].push(0);
-      }
-    }
-  }
-  return maze;
 }
 
 
