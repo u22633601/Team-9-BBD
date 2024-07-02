@@ -142,46 +142,48 @@ io.on('connection', (socket) => {
 				timeLeft: timeLeft,
 			});
 
-			// Start timer for this game
-			setInterval(() => {
-				timeLeft -= 1;
-			}, 1000);
+			// // Start timer for this game
+			// setInterval(() => {
+			// 	timeLeft -= 1;
+			// }, 1000);
 
-			// Start game loop for this game (60 frames per seconds)
-			setInterval(() => {
-				// Collect all orientation data from all players
-				let resultantForce = { x: 0, y: 0 };
-				for (let player of game.players) {
-					// Generate resultant force vector from all players' orientation data
-					let orientation = player.getOrientation();
-					resultantForce.x += player.x;
-					resultantForce.y += orientation.y;
-				}
+			// // Start game loop for this game (60 frames per seconds)
+			// setInterval(() => {
+			// 	// Collect all orientation data from all players
+			// 	let resultantForce = { x: 0, y: 0 };
+			// 	for (let player of game.players) {
+			// 		// Generate resultant force vector from all players' orientation data
+			// 		let orientation = player.getOrientation();
+			// 		resultantForce.x += player.x;
+			// 		resultantForce.y += orientation.y;
+			// 	}
 
-				// Update ball velocity and position based on resultant force vector
-				ball.applyForce(resultantForce.x, resultantForce.y);
-				ball.updatePosition();
+			// 	// Update ball velocity and position based on resultant force vector
+			// 	ball.applyForce(resultantForce.x, resultantForce.y);
+			// 	ball.updatePosition();
 
-				// Check for collision with maze walls and hole (and updates ball position and velocity accordingly)
-				handleMazeCollision(ball, maze);
+			// 	// Check for collision with maze walls and hole (and updates ball position and velocity accordingly)
+			// 	console.log('Checking maze collision');
+			// 	handleMazeCollision(ball, maze);
 
-				// Check for win condition
-				if (timeLeft <= 0) {
-					// Game over, time's up -> Emit game over event to all players (loss)
-					console.log('Game ID: ', gameId, " | Time's up, game over (loss)");
-					io.to(gameId).emit('gameOver', { win: false });
-				} else if (checkMarkerCollision(ball, hole)) {
-					// Game over, players win -> Emit game over event to all players (win)
-					console.log('Game ID: ', gameId, " | Time's up, game over (loss)");
-					io.to(gameId).emit('gameOver', { win: true });
-				} else {
-					// Game still in progress - emit updated game state to all players
-					io.to(gameId).emit('updateGameState', {
-						ball: ball,
-						timeLeft: timeLeft,
-					});
-				}
-			}, 1000 / 60);
+			// 	// Check for win condition
+			// 	console.log('Checking win condition');
+			// 	if (timeLeft <= 0) {
+			// 		// Game over, time's up -> Emit game over event to all players (loss)
+			// 		console.log('Game ID: ', gameId, " | Time's up, game over (loss)");
+			// 		io.to(gameId).emit('gameOver', { win: false });
+			// 	} else if (checkMarkerCollision(ball, hole)) {
+			// 		// Game over, players win -> Emit game over event to all players (win)
+			// 		console.log('Game ID: ', gameId, " | Time's up, game over (loss)");
+			// 		io.to(gameId).emit('gameOver', { win: true });
+			// 	} else {
+			// 		// Game still in progress - emit updated game state to all players
+			// 		io.to(gameId).emit('updateGameState', {
+			// 			ball: ball,
+			// 			timeLeft: timeLeft,
+			// 		});
+			// 	}
+			// }, 1000 / 60);
 		}
 	});
 

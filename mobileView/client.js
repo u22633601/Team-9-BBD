@@ -128,8 +128,10 @@ socket.on('gameJoined', (data) => {
     }
 });
 
-socket.on('gameStarted', () => {
+socket.on('initGameState', (state) => {
     showToast('Game started!');
+    console.log('Game state: ', state);
+    console.log("Ball's current position: ", state.ball.x, state.ball.y);
     startGame();
 });
 
