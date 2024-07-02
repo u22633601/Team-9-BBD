@@ -19,8 +19,10 @@
         <div>
             <input type="text" id="game-id-input" placeholder="Enter Game ID">
             <button id="join-game-btn">Join Game</button>
+            <button id="view-game-btn">View Game</button>
         </div>
     </div>
+
 
     <div id="waiting-screen" class="screen hidden">
         <h2>Waiting for Players</h2>
@@ -29,8 +31,18 @@
         <ul id="player-list"></ul>
         <button id="start-game-btn" class="hidden">Start Game</button>
     </div>
+
+    <div id="win-lose-screen" class="screen hidden">
+        <h2 id="win-lose-message"></h2>
+        <button id="play-again-btn">Play Again</button>
+    </div>
+
+
+    <p id="timer-display"></p>
     <div id="toast" class="toast"></div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.3.2/socket.io.js"></script>
     <script src="client.js"></script>
+    <script src="gameEngine.js"></script>
 </body>
 </html>

@@ -15,8 +15,20 @@ const startGameBtn = document.getElementById('start-game-btn');
 const copyGameIdBtn = document.getElementById('copy-game-id-btn');
 const toast = document.getElementById('toast');
 
+const winLoseScreen = document.getElementById('win-lose-screen');
+const winLoseMessage = document.getElementById('win-lose-message');
+const playAgainBtn = document.getElementById('play-again-btn');
+
+const viewGameBtn = document.getElementById('view-game-btn');
+const viewerGameIdInput = document.getElementById('viewer-game-id-input');
+
+const timerDisplay = document.getElementById('timer-display');
+
 let currentUsername = '';
 let isHost = false;
+
+let timer = 0;
+let ball = {x: 0, y: 0};
 
 // This function sets up the socket to transmit the orientation data to the server
 // Assumes that requisite permissions have been granted
@@ -99,8 +111,20 @@ joinGameBtn.addEventListener('click', () => {
     }
 });
 
+viewGameBtn.addEventListener('click', () => {
+    const gameId = gameIdInput.value.trim();
+    if (gameId) {
+        socket.emit('viewGame', { gameId, username: currentUsername });
+    }
+});
+
 startGameBtn.addEventListener('click', () => {
     socket.emit('startGame', gameIdDisplay.textContent);
+});
+
+playAgainBtn.addEventListener('click', () => {
+    winLoseScreen.classList.add('hidden');
+    lobbyScreen.classList.remove('hidden');
 });
 
 socket.on('gameCreated', (gameId) => {
@@ -118,7 +142,7 @@ socket.on('playerJoined', (players) => {
 socket.on('gameJoined', (data) => {
     isHost = data.isHost;
     gameIdDisplay.textContent = data.gameId;
-    updatePlayerList(data.players);
+    updatePlayerList(data.players, data.viewers);
     lobbyScreen.classList.add('hidden');
     waitingScreen.classList.remove('hidden');
     if (isHost) {
@@ -126,23 +150,83 @@ socket.on('gameJoined', (data) => {
     }
 });
 
-socket.on('gameStarted', () => {
+socket.on('initGameState', (state) => {
     showToast('Game started!');
+    console.log('Game state: ', state);
+    console.log("Ball's current position: ", state.ball.x, state.ball.y);
+    startGame(state.ball.x, state.ball.y, state.ball.radius, state.maze.map, state.hole.x, state.hole.y, state.hole.radius);
 });
 
 socket.on('joinError', (message) => {
     showToast(message);
 });
 
-function updatePlayerList(players) {
-    playerList.innerHTML = '';
+socket.on('gameOver', (data) => {
+    if (data.win) {
+        // showToast('You win!');
+        winLoseMessage.textContent = 'You win!';
+    } else {
+        // showToast('You lose!');
+        winLoseMessage.textContent = 'You lose!';
+    }
+
+    // FIXME: this shows the win/lose screen but doesnt hide anything, fix this
+    timerDisplay.classList.add("hidden");
+    winLoseScreen.classList.remove('hidden');
+});
+
+socket.on('updateTime', (timeLeft) => {
+    timerDisplay.textContent = `Time Left: ${timeLeft}s`;
+});
+
+socket.on('gameOver', (data) => {
+    if (data.win) {
+      showToast('You win!');
+    } else {
+      showToast('You lose!');
+    }
+    // Optionally, you can reset the game state or navigate back to the lobby
+  });
+
+socket.on('updateGameState', (state) => {
+    console.log('Time left: ', state.timeLeft);
+    console.log("Ball's current position: ", state.ball.x, state.ball.y);
+
+    timer = state.timeLeft;
+    ball = state.ball;
+    timerDisplay.textContent = `Time Left: ${timer}s`; // Update the timer display
+  });
+
+socket.on('updateGameState', (state) => {
+    console.log('Time left: ', state.timeLeft);
+    console.log("Ball's current position: ", state.ball.x, state.ball.y);
+
+    timer = state.timeLeft;
+
+    // FIXME: potential issue here, double check that the ball updates correctly, might have to do a member wise assignment
+    ball = state.ball;
+});
+
+function updatePlayerList(players, viewers = []) {
+    playerList.innerHTML = '<h3>Players:</h3>';
     players.forEach(player => {
         const li = document.createElement('li');
         li.textContent = player;
         playerList.appendChild(li);
     });
 
-    if (isHost && players.length >= 2) {
+    const viewerList = document.createElement('ul');
+    if (viewers && viewers.length > 0) {
+        viewerList.innerHTML = '<h3>Viewers:</h3>';
+        viewers.forEach(viewer => {
+            const li = document.createElement('li');
+            li.textContent = viewer;
+            viewerList.appendChild(li);
+        });
+    }
+    playerList.appendChild(viewerList);
+
+    if (isHost && players.length >= 1) {
         startGameBtn.disabled = false;
     } else if (isHost) {
         startGameBtn.disabled = true;
