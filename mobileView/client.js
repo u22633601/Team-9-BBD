@@ -21,6 +21,9 @@ const viewerGameIdInput = document.getElementById('viewer-game-id-input');
 let currentUsername = '';
 let isHost = false;
 
+let timer = 0;
+let ball = {x: 0, y: 0};
+
 // This function sets up the socket to transmit the orientation data to the server
 // Assumes that requisite permissions have been granted
 function SetupOrientationSocket() {
@@ -145,6 +148,24 @@ socket.on('initGameState', (state) => {
 
 socket.on('joinError', (message) => {
     showToast(message);
+});
+
+socket.on('gameOver', (data) => {
+    if (data.win) {
+        showToast('You win!');
+    } else {
+        showToast('You lose!');
+    }
+});
+
+socket.on('updateGameState', (state) => {
+    console.log('Time left: ', state.timeLeft);
+    console.log("Ball's current position: ", state.ball.x, state.ball.y);
+
+    timer = state.timeLeft;
+
+    // FIXME: potential issue here, double check that the ball updates correctly, might have to do a member wise assignment
+    ball = state.ball;
 });
 
 function updatePlayerList(players, viewers = []) {
