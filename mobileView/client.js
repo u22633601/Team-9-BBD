@@ -163,32 +163,32 @@ socket.on('joinError', (message) => {
     showToast(message);
 });
 
-// socket.on('gameOver', (data) => {
-//     if (data.win) {
-//         // showToast('You win!');
-//         winLoseMessage.textContent = 'You win!';
-//     } else {
-//         // showToast('You lose!');
-//         winLoseMessage.textContent = 'You lose!';
-//     }
-
-//     // FIXME: this shows the win/lose screen but doesnt hide anything, fix this
-//     timerDisplay.classList.add("hidden");
-//     winLoseScreen.classList.remove('hidden');
-// });
-
-// socket.on('updateTime', (timeLeft) => {
-    // timerDisplay.textContent = `Time Left: ${timeLeft}s`;
-// });
-
 socket.on('gameOver', (data) => {
     if (data.win) {
-      showToast('You win!');
+        // showToast('You win!');
+        winLoseMessage.textContent = 'You win!';
     } else {
-      showToast('You lose!');
+        // showToast('You lose!');
+        winLoseMessage.textContent = 'You lose!';
     }
-    // Optionally, you can reset the game state or navigate back to the lobby
-  });
+
+    // FIXME: this shows the win/lose screen but doesnt hide anything, fix this
+    timerDisplay.classList.add("hidden");
+    winLoseScreen.classList.remove('hidden');
+});
+
+socket.on('updateTime', (timeLeft) => {
+    timerDisplay.textContent = `Time Left: ${timeLeft}s`;
+});
+
+// socket.on('gameOver', (data) => {
+//     if (data.win) {
+//       showToast('You win!');
+//     } else {
+//       showToast('You lose!');
+//     }
+//     // Optionally, you can reset the game state or navigate back to the lobby
+//   });
 
 socket.on('updateGameState', (state) => {
     // const coordinateLabel = document.getElementById('coordinate-display');
@@ -198,7 +198,7 @@ socket.on('updateGameState', (state) => {
     console.log("Ball's current position: ", state.ball.x, state.ball.y);
 
     timer = state.timeLeft;
-    // timerDisplay.textContent = `Time Left: ${timer}s`; // Update the timer display
+    timerDisplay.textContent = `Time Left: ${timer}s`; // Update the timer display
 
     // FIXME: potential issue here, double check that the ball updates correctly, might have to do a member wise assignment
     ball = state.ball;

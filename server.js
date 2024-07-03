@@ -150,7 +150,7 @@ io.on('connection', (socket) => {
 
 			game.maze = maze;
 
-			timeLeft = 500;
+			timeLeft = 10;
 
 			console.log(
 				'gameId:',
