@@ -3,8 +3,8 @@
 // annoying message about invalid certs
 
 const express = require('express');
-// const http = require('http');
-const https = require('https');
+ const http = require('http');
+//const https = require('https');
 const socketIo = require('socket.io');
 const path = require('path');
 const fs = require('fs');
@@ -25,7 +25,7 @@ var options = {
 
 const app = express();
 // const server = http.createServer(app);
-const server = https.createServer(options, app);
+const server = http.createServer(options, app);
 const io = socketIo(server);
 
 app.use(express.static(path.join(__dirname, 'mobileView')));
