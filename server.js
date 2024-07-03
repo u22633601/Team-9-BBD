@@ -183,8 +183,10 @@ io.on('connection', (socket) => {
 		});
 
 		// 11x11, start position at cell 1,1 and end at cell 9,9 
-		// const maze = new Maze(15, 15, getRandomInt(1, 14), getRandomInt(1, 14), getRandomInt(1, 14), getRandomInt(1, 14));
-		const maze = new Maze(21, 21, 1, 1, 19, 19);
+		// THis line is gross but basically generates odd numbers between 1 and 19
+		// The start and end positions are always odd numbers to ensure the maze draws correctly
+		const maze = new Maze(21, 21, getRandomInt(0, 10)*2+1, getRandomInt(0, 10)*2+1, getRandomInt(0, 10)*2+1, getRandomInt(0, 10)*2+1);
+		// const maze = new Maze(21, 21, 1, 1, 19, 19);
 
 		let balls = [new Ball(0, 0, 0, teams[0]), new Ball(0, 0, 0, teams[1])];
 		
