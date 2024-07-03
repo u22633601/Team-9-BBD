@@ -320,6 +320,9 @@ io.on('connection', (socket) => {
 
 		console.log("Game: ", game);
 
+		// Printing ready status of all players
+		console.log("Players ready status: ", game.players.map(player => player.ready));
+
 		if(game.players.every((player) => player.ready)) {
 			startGame(gameId);
 			clearInterval(readyUpWait);

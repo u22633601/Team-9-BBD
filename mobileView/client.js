@@ -177,7 +177,15 @@ socket.on('joinError', (message) => {
 });
 
 socket.on('gameOver', (data) => {
-    if (data.team === playerTeam) {
+    if (playerTeam === '') {
+        if (data.team === 'red') {
+            winLoseMessage.textContent = 'Red team wins!';
+        }
+        else if (data.team === 'blue'){
+            winLoseMessage.textContent = 'Blue team wins!';
+        }
+    }
+    else if (data.team === playerTeam) {
         winLoseMessage.textContent = 'You win!';
     } else {
         winLoseMessage.textContent = 'You lose!';
