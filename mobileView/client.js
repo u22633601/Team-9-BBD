@@ -155,6 +155,11 @@ socket.on('gameJoined', (data) => {
 socket.on('initGameState', (state) => {
     showToast('Game started!');
     console.log('Game state: ', state);
+    const currentPlayer = state.players.find(p => p.username === currentUsername);
+    if (currentPlayer) {
+        showToast(`You are on the ${currentPlayer.team} team!`);
+    }
+    updatePlayerList(state.players);
     // console.log("Ball's current position: ", state.ball.x, state.ball.y);
     startGame(state.ball.x, state.ball.y, state.ball.radius, state.maze, state.hole.x, state.hole.y, state.hole.radius);
 });
@@ -224,7 +229,7 @@ function updatePlayerList(players, viewers = []) {
     }
     playerList.appendChild(viewerList);
 
-    if (isHost && players.length >= 1) {
+    if ((isHost && players.length == 2) || (isHost && players.length ==4 )) {
         startGameBtn.disabled = false;
     } else if (isHost) {
         startGameBtn.disabled = true;

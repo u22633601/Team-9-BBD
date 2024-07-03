@@ -2,6 +2,7 @@ class Player {
     constructor(username, socket) {
         this.username = username;
         this.socket = socket;
+        this.team = null;
 
         // These are internal, DO NOT USE, use getOrientation() instead
         this.beta = 0;

@@ -41,41 +41,41 @@ io.on('connection', (socket) => {
 		const player = new Player(username, socket);
 
 
-        games.set(gameId, { 
-            players: [player], 
-            viewers:[],
-            sockets: [socket],
-            isStarted: false,
-            host: socket.id,
-        });
-        socket.join(gameId);
-        socket.emit('gameCreated', gameId);
+		games.set(gameId, {
+			players: [player],
+			viewers: [],
+			sockets: [socket],
+			isStarted: false,
+			host: socket.id,
+		});
+		socket.join(gameId);
+		socket.emit('gameCreated', gameId);
 
-        console.log('gameId:', gameId, '\t|\tGame created, host: ', username);
-    });
+		console.log('gameId:', gameId, '\t|\tGame created, host: ', username);
+	});
 
-    socket.on('viewGame', ({ gameId, username }) => {
-        const game = games.get(gameId);
-        if (game) {
-            if (game.players.map(player => player.username).includes(username) ||
-                game.viewers.includes(username)) {
-                socket.emit('joinError', 'Username is already taken');
-            } else {
-                game.viewers.push(username);
-                socket.join(gameId);
-                io.to(gameId).emit('playerJoined', game.players.map(player => player.username));
-                socket.emit('gameJoined', {
-                    gameId,
-                    players: game.players.map(player => player.username),
-                    viewers: game.viewers,
-                    isHost: false
-                });
-                console.log('gameId:', gameId, '\t|\tViewer joined the game, username: ', username);
-            }
-        } else {
-            socket.emit('joinError', 'Game not found');
-        }
-    });
+	socket.on('viewGame', ({ gameId, username }) => {
+		const game = games.get(gameId);
+		if (game) {
+			if (game.players.map(player => player.username).includes(username) ||
+				game.viewers.includes(username)) {
+				socket.emit('joinError', 'Username is already taken');
+			} else {
+				game.viewers.push(username);
+				socket.join(gameId);
+				io.to(gameId).emit('playerJoined', game.players.map(player => player.username));
+				socket.emit('gameJoined', {
+					gameId,
+					players: game.players.map(player => player.username),
+					viewers: game.viewers,
+					isHost: false
+				});
+				console.log('gameId:', gameId, '\t|\tViewer joined the game, username: ', username);
+			}
+		} else {
+			socket.emit('joinError', 'Game not found');
+		}
+	});
 
 	socket.on('joinGame', ({ gameId, username }) => {
 		const game = games.get(gameId);
@@ -120,7 +120,7 @@ io.on('connection', (socket) => {
 				socket.emit('gameJoined', {
 					gameId,
 					players: game.players.map((player) => player.username),
-                    viewers: game.viewers,
+					viewers: game.viewers,
 					isHost: false,
 				});
 			}
@@ -139,6 +139,11 @@ io.on('connection', (socket) => {
 		const game = games.get(gameId);
 		if (game && socket.id === game.host) {
 			game.isStarted = true;
+
+			const teams = ['red', 'blue'];
+			game.players.forEach((player, index) => {
+				player.team = teams[index % 2];
+			});
 
 			// Initialise game state variables: Ball, Maze, Hole
 
@@ -171,6 +176,7 @@ io.on('connection', (socket) => {
 				hole: hole,
 				maze: maze.getMazeData(),
 				timeLeft: timeLeft,
+				players: game.players.map(p => ({ username: p.username, team: p.team }))
 			});
 
 			// Start timer for this game
@@ -193,12 +199,12 @@ io.on('connection', (socket) => {
 					// - Invert the y-axis for the orientation data
 					let orientation = player.getOrientation();
 
-					ball.acceleration.x += orientation.y*9.8 * 10;
-					ball.acceleration.y += orientation.x*9.8 * 10;
+					ball.acceleration.x += orientation.y * 9.8 * 10;
+					ball.acceleration.y += orientation.x * 9.8 * 10;
 				}
 
 				// Update ball velocity and position based on resultant force vector
-				let futureCoordinates = ball.getFuturePosition(frame_period/1000);
+				let futureCoordinates = ball.getFuturePosition(frame_period / 1000);
 
 				// let updatePosition = true
 				for (let i = 0; i < maze.map.length; i++) {
@@ -206,30 +212,30 @@ io.on('connection', (socket) => {
 						if (maze.map[i][j] == 1) {
 							// if ((futureCoordinates.x >= j - 5 && futureCoordinates.x <= j + 5) || (futureCoordinates.y >= i - 5 && futureCoordinates.y <= i + 5)) {
 							// if ((futureCoordinates.x >= j * maze.wallSize - 5 && futureCoordinates.x <= j * maze.wallSize + 5) || (futureCoordinates.y >= i * maze.wallSize && futureCoordinates.y <= i * maze.wallSize)) {
-							if ((Math.abs(futureCoordinates.x - (i * maze.wallSize + maze.wallSize / 2)) < (maze.wallSize / 2 + ball.radius) && 
-								Math.abs(futureCoordinates.y - (j * maze.wallSize + maze.wallSize / 2)) < (maze.wallSize / 2 + ball.radius)) 
-							) {   		
+							if ((Math.abs(futureCoordinates.x - (i * maze.wallSize + maze.wallSize / 2)) < (maze.wallSize / 2 + ball.radius) &&
+								Math.abs(futureCoordinates.y - (j * maze.wallSize + maze.wallSize / 2)) < (maze.wallSize / 2 + ball.radius))
+							) {
 								// Reverse applied force
 								console.log("Collision detected at maze wall")
 
 								// Set velocities to 0
-								if (Math.abs(ball.x - (i * maze.wallSize + maze.wallSize / 2)) < (maze.wallSize / 2 + ball.radius)){
+								if (Math.abs(ball.x - (i * maze.wallSize + maze.wallSize / 2)) < (maze.wallSize / 2 + ball.radius)) {
 									ball.velocityY = -ball.velocityY;
 									ball.acceleration.y = 0;
 								}
-								else{
+								else {
 									ball.velocityX = -ball.velocityX;
 									ball.acceleration.x = 0;
 								}
-									
+
 								break;
 							}
 						}
 					}
 				}
 
-				ball.updatePosition(frame_period/1000);
-				
+				ball.updatePosition(frame_period / 1000);
+
 
 				// Check for win condition
 				if (timeLeft <= 0) {
