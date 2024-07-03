@@ -18,6 +18,7 @@ const toast = document.getElementById('toast');
 const winLoseScreen = document.getElementById('win-lose-screen');
 const winLoseMessage = document.getElementById('win-lose-message');
 const playAgainBtn = document.getElementById('play-again-btn');
+const backToLobbyBtn = document.getElementById('back-to-lobby-btn');
 
 const viewGameBtn = document.getElementById('view-game-btn');
 const viewerGameIdInput = document.getElementById('viewer-game-id-input');
@@ -122,11 +123,13 @@ startGameBtn.addEventListener('click', () => {
     socket.emit('startGame', gameIdDisplay.textContent);
 });
 
-playAgainBtn.addEventListener('click', () => {
+backToLobbyBtn.addEventListener('click', () => {
     location.reload(true);
+});
 
-    // winLoseScreen.classList.add('hidden');
-    // lobbyScreen.classList.remove('hidden');
+playAgainBtn.addEventListener('click', () => {
+    socket.emit('playAgain');
+    showToast('Waiting for other players to play again...');
 });
 
 socket.on('gameCreated', (gameId) => {

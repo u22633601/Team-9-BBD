@@ -8,7 +8,10 @@ class Player {
         this.beta = 0;
         this.gamma = 0;
 
+        this.ready = false;
+
         this.setupOrientationDataReception();
+        this.setupReadyStateReception();
     }
 
     setupOrientationDataReception() {
@@ -18,6 +21,12 @@ class Player {
             
             // console.log('Player: ', this.username, '\t|\torientation', this.gamma, this.beta);
             // console.log('Player: ', this.username, '\t|\tscaled-orientation', this.getOrientation());
+        });
+    }
+
+    setupReadyStateReception() {
+        this.socket.on('playAgain', () => {
+            this.ready = true;
         });
     }
 
