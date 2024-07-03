@@ -183,15 +183,15 @@ io.on('connection', (socket) => {
 			}, 1000);
 
 			// Start game loop for this game (60 frames per seconds)
-			gameLoopId = setInterval(() => {
+			let gameLoopId = setInterval(() => {
 				// Collect all orientation data from all players
 				let resultantForce = { x: 0, y: 0 };
 				for (let player of game.players) {
 					// Generate resultant force vector from all players' orientation data (needs conversion from angles to force x and y vectors)
 					// - Invert the y-axis for the orientation data
 					let orientation = player.getOrientation();
-					resultantForce.x += orientation.x*0.01	;
-					resultantForce.y += -1*orientation.y*0.01;
+					resultantForce.x += orientation.y*0.01	;
+					resultantForce.y += orientation.x*0.01;
 				}
 
 				// Update ball velocity and position based on resultant force vector
