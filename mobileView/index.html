@@ -37,9 +37,16 @@
         <button id="play-again-btn">Play Again</button>
     </div>
 
+    <div id="imposter-guess-screen" class="screen hidden">
+        <h2>Guess the Imposter</h2>
+        <ul id="imposter-guess-list"></ul>
+        <button id="submit-guess-btn">Submit Guess</button>
+        <p id="imposter-result" class="hidden"></p>
+    </div>
+
 
     <!-- FIXME: commented out timer for now cause it messes with the canvas display -->
-    <!-- <p id="timer-display"></p> -->
+    <p id="timer-display"></p>
     <div id="toast" class="toast"></div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.3.2/socket.io.js"></script>

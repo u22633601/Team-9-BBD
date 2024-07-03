@@ -7,6 +7,8 @@ class Player {
         this.beta = 0;
         this.gamma = 0;
 
+        this.isImposter = false;
+
         this.setupOrientationDataReception();
     }
 
