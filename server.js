@@ -205,18 +205,6 @@ io.on('connection', (socket) => {
 				players: game.players.map(p => ({ username: p.username, team: p.team }))
 			});
 
-			// Start timer for this game
-			// let gameTimerId = setInterval(() => {
-			// 	console.log("<", gameId, "> Time Left: ", timeLeft);
-			// 	timeLeft -= 1;
-			// 	io.to(gameId).emit('updateTime', timeLeft); // Emit timer updates
-
-			// 	// Stop the timer when time runs out
-			// 	if (timeLeft <= 0) {
-			// 		clearInterval(gameTimerId);
-			// 	}
-			// }, 1000);
-
 			// Start game loop for this game (60 frames per seconds)
 			let gameLoopId = setInterval(() => {
 				// Collect all orientation data from all players
@@ -294,7 +282,12 @@ io.on('connection', (socket) => {
 						balls: balls,
 						// timeLeft: timeLeft,
 					});
+
+					console.log("updateGameState emitted");
 				}
+
+				// console.timeEnd('gameLoop Execution Time');
+				
 			}, frame_period);
 		}
 	});

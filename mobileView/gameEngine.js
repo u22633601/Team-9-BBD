@@ -26,6 +26,8 @@ function startGame(balls, maze, hole) {
 			}
 		}
 	}
+
+  window.requestAnimationFrame(updateGameArea);
 }
 
 function removeOtherScreens() {
@@ -60,7 +62,6 @@ var GameArea = {
 		this.context = this.canvas.getContext("2d");
 		document.body.insertBefore(this.canvas, document.body.childNodes[0]);
 		this.frameNo = 0;
-		this.interval = setInterval(updateGameArea, 60);
 	},
 	clear : function() {
 		this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -68,8 +69,8 @@ var GameArea = {
 }
 
 function everyinterval(n) {
-  if ((GameArea.frameNo / n) % 1 == 0) {return true;}
-  return false;
+	if ((GameArea.frameNo / n) % 1 == 0) {return true;}
+	return false;
 }
 
 // function renderBall(x,y,radius,color){
@@ -84,10 +85,15 @@ function createWall( x, y, size, color) {
 	this.size = size;
 	this.x = x;
 	this.y = y;
+
+	this.canvasX = Math.round(this.x/100 * GameArea.canvas.width);
+	this.canvasY = Math.round(this.y/100 * GameArea.canvas.width);
+	this.canvasSize = Math.round(this.size/100 * GameArea.canvas.width)+1;
+
 	this.update = function(){
 		ctx = GameArea.context;
 		ctx.fillStyle = color;
-		ctx.fillRect(Math.round(this.x/100 * GameArea.canvas.width) , Math.round(this.y/100 * GameArea.canvas.width), Math.round(this.size/100 * GameArea.canvas.width)+1, Math.round(this.size/100 * GameArea.canvas.width)+1);
+		ctx.fillRect(this.canvasX , this.canvasY, this.canvasSize, this.canvasSize);
 		// ctx.fillRect(this.x/100 * GameArea.canvas.width, this.y/100 * GameArea.canvas.width, this.size/100 * GameArea.canvas.width, this.size/100 * GameArea.canvas.width);
 	}
 }
@@ -96,11 +102,12 @@ function createPlayer(x,y,radius,color){
 	this.x = x;
 	this.y = y;
 	this.radius = radius;
+  	this.canvasRadius = Math.round(this.radius/100 * GameArea.canvas.width);
 
 	this.update = function(){
 		ctx = GameArea.context;
 		ctx.beginPath();
-		ctx.arc(Math.round((this.x)/100 * GameArea.canvas.width), Math.round((this.y)/100 * GameArea.canvas.width), Math.round(this.radius/100 * GameArea.canvas.width), 0, 2 * Math.PI);
+		ctx.arc(Math.round((this.x)/100 * GameArea.canvas.width), ((this.y)/100 * GameArea.canvas.width), this.canvasRadius, 0, 2 * Math.PI);
 		ctx.fillStyle = color;
 		ctx.fill();
 	} 
@@ -124,6 +131,8 @@ function updateBallPositions(balls) {
 }
 
 function updateGameArea() {
+  // console.time('updateGameArea Execution Time');
+
 	GameArea.clear();
 	gameHole.update();
 	
@@ -134,6 +143,11 @@ function updateGameArea() {
 	for(i = 0; i < Balls.length; i++){
 		Balls[i].update();
 	}
+  // console.timeEnd('updateGameArea Execution Time');
+
+  window.requestAnimationFrame(updateGameArea);
+
+
 }
 
 //module.exports = startGame;
