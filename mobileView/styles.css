@@ -23,13 +23,18 @@ body {
     /* padding: 20px; */
 }
 
+
 @media (max-width: 900px) {
     body {
         display: flex;
         flex-direction: column;
     }
 }
-
+#team-info {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin: 10px 0;
+}
 
 .screen {
     background-color: white;

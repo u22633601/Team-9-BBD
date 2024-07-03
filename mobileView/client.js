@@ -28,7 +28,7 @@ let currentUsername = '';
 let isHost = false;
 
 let timer = 0;
-let ball = {x: 0, y: 0};
+let ball = { x: 0, y: 0 };
 
 // This function sets up the socket to transmit the orientation data to the server
 // Assumes that requisite permissions have been granted
@@ -41,14 +41,14 @@ function SetupOrientationSocket() {
         // FIXME: this is potentially too fast or too slow
         // Orientation only updates every 100ms
         if (currentTime - lastEmitTime > 250) {
-            socket.emit('orientation', 
-            {
-                username: currentUsername,
-                orientation_data: {
-                    beta : event.beta,
-                    gamma : event.gamma
-                }
-            });
+            socket.emit('orientation',
+                {
+                    username: currentUsername,
+                    orientation_data: {
+                        beta: event.beta,
+                        gamma: event.gamma
+                    }
+                });
             lastEmitTime = currentTime;
         }
     });
@@ -57,18 +57,18 @@ function SetupOrientationSocket() {
 // Gets the orientation permission from the user, true if permission granted, false otherwise
 function RequestOrientationPermission() {
     if (typeof DeviceMotionEvent !== 'undefined') {
-        if(typeof DeviceMotionEvent.requestPermission === 'function'){
-        DeviceMotionEvent.requestPermission()
-            .then((response) => {
-                if (response == 'granted') {
-                    SetupOrientationSocket();
-                } else {
-                    socket.emit('no-orientation');
-                }
-            })
-            .catch(console.error);
+        if (typeof DeviceMotionEvent.requestPermission === 'function') {
+            DeviceMotionEvent.requestPermission()
+                .then((response) => {
+                    if (response == 'granted') {
+                        SetupOrientationSocket();
+                    } else {
+                        socket.emit('no-orientation');
+                    }
+                })
+                .catch(console.error);
         }
-        else{
+        else {
             SetupOrientationSocket();
         }
     } else {
@@ -152,12 +152,18 @@ socket.on('gameJoined', (data) => {
     }
 });
 
+let playerTeam = '';
+
 socket.on('initGameState', (state) => {
     showToast('Game started!');
     console.log('Game state: ', state);
     const currentPlayer = state.players.find(p => p.username === currentUsername);
     if (currentPlayer) {
-        showToast(`You are on the ${currentPlayer.team} team!`);
+        playerTeam = currentPlayer.team;
+        const teamInfoElement = document.getElementById('team-info');
+        teamInfoElement.textContent = `You were on the ${playerTeam} team`;
+        teamInfoElement.style.color = playerTeam;
+        teamInfoElement.classList.remove('hidden');
     }
     updatePlayerList(state.players);
     // console.log("Ball's current position: ", state.ball.x, state.ball.y);
@@ -170,14 +176,16 @@ socket.on('joinError', (message) => {
 
 socket.on('gameOver', (data) => {
     if (data.win) {
-        // showToast('You win!');
         winLoseMessage.textContent = 'You win!';
     } else {
-        // showToast('You lose!');
         winLoseMessage.textContent = 'You lose!';
     }
 
-    // FIXME: this shows the win/lose screen but doesnt hide anything, fix this
+    // Display team information
+    const teamInfoElement = document.getElementById('team-info');
+    teamInfoElement.textContent = `You were on the ${playerTeam} team`;
+    teamInfoElement.style.color = playerTeam;
+
     timerDisplay.classList.add("hidden");
     winLoseScreen.classList.remove('hidden');
 });
@@ -229,7 +237,7 @@ function updatePlayerList(players, viewers = []) {
     }
     playerList.appendChild(viewerList);
 
-    if ((isHost && players.length == 2) || (isHost && players.length ==4 )) {
+    if ((isHost && players.length == 2) || (isHost && players.length == 4)) {
         startGameBtn.disabled = false;
     } else if (isHost) {
         startGameBtn.disabled = true;
