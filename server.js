@@ -182,7 +182,7 @@ io.on('connection', (socket) => {
 
 			// 11x11, start position at cell 1,1 and end at cell 9,9 
 			// const maze = new Maze(15, 15, getRandomInt(1, 14), getRandomInt(1, 14), getRandomInt(1, 14), getRandomInt(1, 14));
-			const maze = new Maze(15, 15, 1, 1, 13, 13);
+			const maze = new Maze(21, 21, 1, 1, 19, 19);
 
 			let balls = [new Ball(0, 0, 0, teams[0]), new Ball(0, 0, 0, teams[1])];
 			
@@ -230,8 +230,8 @@ io.on('connection', (socket) => {
 						// - Invert the y-axis for the orientation data
 						let orientation = player.getOrientation();
 
-						ball.acceleration.x += orientation.y * 9.8 * 10;
-						ball.acceleration.y += orientation.x * 9.8 * 10;
+						ball.acceleration.x += orientation.y * 9.8 * 20;
+						ball.acceleration.y += orientation.x * 9.8 * 20;
 					}
 
 					// Update ball velocity and position based on resultant force vector

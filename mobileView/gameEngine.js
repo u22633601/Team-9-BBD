@@ -14,7 +14,7 @@ function startGame(balls, maze, hole) {
 	GameArea.start();
 
 	for(let i = 0; i < balls.length; i++){
-		Balls.push(new createPlayer(balls[i].x, balls[i].y, balls[i].radius, balls[i].team == "red" ? "#ff0000" : "#0000ff"));
+		Balls.push(new createPlayer(balls[i].x, balls[i].y, balls[i].radius, balls[i].team == "red" ? "#ff0000" : "blue"));
 	}
 	
 	gameHole = new createPlayer(hole.x, hole.y, hole.radius, "#2f2f2f");
@@ -22,7 +22,7 @@ function startGame(balls, maze, hole) {
 	for(let i = 0; i < gameMaze.map.length; i++){
 		for(let j = 0; j < gameMaze.map[i].length; j++){
 			if(gameMaze.map[i][j] == 1){
-				Obstacles.push(new createWall(i*gameMaze.wallSize, j*gameMaze.wallSize, gameMaze.wallSize, "#2f2f2f"));
+				Obstacles.push(new createWall(i*gameMaze.wallSize, j*gameMaze.wallSize, gameMaze.wallSize, "#7a7a7a"));
 			}
 		}
 	}
