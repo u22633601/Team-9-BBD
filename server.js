@@ -3,7 +3,7 @@
 // annoying message about invalid certs
 
 const express = require('express');
-// const http = require('http');
+const http = require('http');
 const https = require('https');
 const socketIo = require('socket.io');
 const path = require('path');
@@ -24,8 +24,21 @@ var options = {
 };
 
 const app = express();
+
+const PORT = process.env.PORT || 3000;
+
+let server;
+if (PORT === 3000) {
+  const options = {
+    key: fs.readFileSync('certs/mazegame.key'),
+    cert: fs.readFileSync('certs/mazegame.crt'),
+  };
+  server = https.createServer(options, app);
+} else {
+  server = http.createServer(app);
+}
 // const server = http.createServer(app);
-const server = https.createServer(options, app);
+//const server = http.createServer(options, app);
 const io = socketIo(server);
 
 app.use(express.static(path.join(__dirname, 'mobileView')));
@@ -300,7 +313,7 @@ io.on('connection', (socket) => {
 	});
 });
 
-const PORT = process.env.PORT || 3000;
+//const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
 	console.log(`Server is running on port ${PORT}`);
 });
