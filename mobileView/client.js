@@ -28,7 +28,7 @@ let currentUsername = '';
 let isHost = false;
 
 let timer = 0;
-let ball = { x: 0, y: 0 };
+let balls = {};
 
 // This function sets up the socket to transmit the orientation data to the server
 // Assumes that requisite permissions have been granted
@@ -167,7 +167,7 @@ socket.on('initGameState', (state) => {
     }
     updatePlayerList(state.players);
     // console.log("Ball's current position: ", state.ball.x, state.ball.y);
-    startGame(state.ball.x, state.ball.y, state.ball.radius, state.maze, state.hole.x, state.hole.y, state.hole.radius);
+    startGame(state.balls, state.maze, state.hole);
 });
 
 socket.on('joinError', (message) => {
@@ -208,14 +208,13 @@ socket.on('updateGameState', (state) => {
     // coordinateLabel.textContent = `Ball's current position: ${state.ball.x}, ${state.ball.y}`;
 
     // console.log('Time left: ', state.timeLeft);
-    console.log("Ball's current position: ", state.ball.x, state.ball.y);
+    // console.log("Ball's current position: ", state.ball.x, state.ball.y);
 
     timer = state.timeLeft;
     timerDisplay.textContent = `Time Left: ${timer}s`; // Update the timer display
 
-    // FIXME: potential issue here, double check that the ball updates correctly, might have to do a member wise assignment
-    ball = state.ball;
-    updateBallPosition(ball.x, ball.y);
+    balls = state.balls;
+    updateBallPositions(balls);
 });
 
 function updatePlayerList(players, viewers = []) {

@@ -1,4 +1,4 @@
-var GamePiece;
+var Balls = [];
 var Obstacles = [];
 var testWall;
 var testWall2;
@@ -6,20 +6,23 @@ var gameMaze;
 var gameHole;
 
 
-function startGame(ballX, ballY, ballRadius, a_gameMaze, holeX, holeY, holeRadius) {
-	gameMaze = a_gameMaze;
+function startGame(balls, maze, hole) {
+	gameMaze = maze;
 
 	removeOtherScreens();
 
 	GameArea.start();
 
-	GamePiece = new createPlayer(ballX, ballY, ballRadius, "#f39c12");
-	gameHole = new createPlayer(holeX, holeY, holeRadius, "#4a90e2");
+	for(let i = 0; i < balls.length; i++){
+		Balls.push(new createPlayer(balls[i].x, balls[i].y, balls[i].radius, balls[i].team == "red" ? "#ff0000" : "#0000ff"));
+	}
+	
+	gameHole = new createPlayer(hole.x, hole.y, hole.radius, "#2f2f2f");
 
 	for(let i = 0; i < gameMaze.map.length; i++){
 		for(let j = 0; j < gameMaze.map[i].length; j++){
 			if(gameMaze.map[i][j] == 1){
-				Obstacles.push(new createWall(i*a_gameMaze.wallSize, j*a_gameMaze.wallSize, a_gameMaze.wallSize, "#2f2f2f"));
+				Obstacles.push(new createWall(i*gameMaze.wallSize, j*gameMaze.wallSize, gameMaze.wallSize, "#2f2f2f"));
 			}
 		}
 	}
@@ -113,9 +116,11 @@ function updatePosition() {
 	this.y += this.velocityY;
 }
 
-function updateBallPosition(ballX, ballY) {
-	GamePiece.x = ballX;
-	GamePiece.y = ballY;
+function updateBallPositions(balls) {
+	for(let i = 0; i < balls.length; i++){
+		Balls[i].x = balls[i].x;
+		Balls[i].y = balls[i].y;
+	}
 }
 
 function updateGameArea() {
@@ -126,8 +131,9 @@ function updateGameArea() {
 		Obstacles[i].update();
 	}
 
-	GamePiece.update();
-
+	for(i = 0; i < Balls.length; i++){
+		Balls[i].update();
+	}
 }
 
 //module.exports = startGame;

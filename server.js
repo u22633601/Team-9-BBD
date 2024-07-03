@@ -171,10 +171,12 @@ io.on('connection', (socket) => {
 			// const maze = new Maze(15, 15, getRandomInt(1, 14), getRandomInt(1, 14), getRandomInt(1, 14), getRandomInt(1, 14));
 			const maze = new Maze(15, 15, 1, 1, 13, 13);
 
-			let ball = new Ball(0, 0, 0);
+			let balls = [new Ball(0, 0, 0, teams[0]), new Ball(0, 0, 0, teams[1])];
+			
 			let hole = new MazeObject(0, 0, 0);
 
-			AddBallToMaze(ball, maze);
+			AddBallToMaze(balls[0], maze);
+			AddBallToMaze(balls[1], maze);
 			AddEndToMaze(hole, maze);
 
 			game.maze = maze;
@@ -186,8 +188,8 @@ io.on('connection', (socket) => {
 				gameId,
 				'\t|\tGame started.\n Players: ',
 				game.players,
-				'\n Ball: ',
-				ball,
+				'\n Balls: ',
+				balls,
 				'\n Hole: ',
 				hole,
 				'\n Time Left: ',
@@ -196,7 +198,7 @@ io.on('connection', (socket) => {
 
 			// Emit initial game state to all players
 			io.to(gameId).emit('initGameState', {
-				ball: ball,
+				balls: balls,
 				hole: hole,
 				maze: maze.getMazeData(),
 				timeLeft: timeLeft,
@@ -218,48 +220,52 @@ io.on('connection', (socket) => {
 			// Start game loop for this game (60 frames per seconds)
 			let gameLoopId = setInterval(() => {
 				// Collect all orientation data from all players
-				for (let player of game.players) {
-					// Generate resultant force vector from all players' orientation data (needs conversion from angles to force x and y vectors)
-					// - Invert the y-axis for the orientation data
-					let orientation = player.getOrientation();
+				for(let ball of balls){
+					for (let player of game.players) {
+						if(player.team != ball.team){
+							continue;
+						}
+						// Generate resultant force vector from all players' orientation data (needs conversion from angles to force x and y vectors)
+						// - Invert the y-axis for the orientation data
+						let orientation = player.getOrientation();
 
-					ball.acceleration.x += orientation.y * 9.8 * 10;
-					ball.acceleration.y += orientation.x * 9.8 * 10;
-				}
+						ball.acceleration.x += orientation.y * 9.8 * 10;
+						ball.acceleration.y += orientation.x * 9.8 * 10;
+					}
 
-				// Update ball velocity and position based on resultant force vector
-				let futureCoordinates = ball.getFuturePosition(frame_period / 1000);
+					// Update ball velocity and position based on resultant force vector
+					let futureCoordinates = ball.getFuturePosition(frame_period / 1000);
 
-				// let updatePosition = true
-				for (let i = 0; i < maze.map.length; i++) {
-					for (let j = 0; j < maze.map[i].length; j++) {
-						if (maze.map[i][j] == 1) {
-							// if ((futureCoordinates.x >= j - 5 && futureCoordinates.x <= j + 5) || (futureCoordinates.y >= i - 5 && futureCoordinates.y <= i + 5)) {
-							// if ((futureCoordinates.x >= j * maze.wallSize - 5 && futureCoordinates.x <= j * maze.wallSize + 5) || (futureCoordinates.y >= i * maze.wallSize && futureCoordinates.y <= i * maze.wallSize)) {
-							if ((Math.abs(futureCoordinates.x - (i * maze.wallSize + maze.wallSize / 2)) < (maze.wallSize / 2 + ball.radius) &&
-								Math.abs(futureCoordinates.y - (j * maze.wallSize + maze.wallSize / 2)) < (maze.wallSize / 2 + ball.radius))
-							) {
-								// Reverse applied force
-								console.log("Collision detected at maze wall")
+					// let updatePosition = true
+					for (let i = 0; i < maze.map.length; i++) {
+						for (let j = 0; j < maze.map[i].length; j++) {
+							if (maze.map[i][j] == 1) {
+								// if ((futureCoordinates.x >= j - 5 && futureCoordinates.x <= j + 5) || (futureCoordinates.y >= i - 5 && futureCoordinates.y <= i + 5)) {
+								// if ((futureCoordinates.x >= j * maze.wallSize - 5 && futureCoordinates.x <= j * maze.wallSize + 5) || (futureCoordinates.y >= i * maze.wallSize && futureCoordinates.y <= i * maze.wallSize)) {
+								if ((Math.abs(futureCoordinates.x - (i * maze.wallSize + maze.wallSize / 2)) < (maze.wallSize / 2 + ball.radius) &&
+									Math.abs(futureCoordinates.y - (j * maze.wallSize + maze.wallSize / 2)) < (maze.wallSize / 2 + ball.radius))
+								) {
+									// Reverse applied force
+									console.log("Collision detected at maze wall")
 
-								// Set velocities to 0
-								if (Math.abs(ball.x - (i * maze.wallSize + maze.wallSize / 2)) < (maze.wallSize / 2 + ball.radius)) {
-									ball.velocityY = -ball.velocityY;
-									ball.acceleration.y = 0;
+									// Set velocities to 0
+									if (Math.abs(ball.x - (i * maze.wallSize + maze.wallSize / 2)) < (maze.wallSize / 2 + ball.radius)) {
+										ball.velocityY = -ball.velocityY;
+										ball.acceleration.y = 0;
+									}
+									else {
+										ball.velocityX = -ball.velocityX;
+										ball.acceleration.x = 0;
+									}
+
+									break;
 								}
-								else {
-									ball.velocityX = -ball.velocityX;
-									ball.acceleration.x = 0;
-								}
-
-								break;
 							}
 						}
 					}
-				}
 
-				ball.updatePosition(frame_period / 1000);
-
+					ball.updatePosition(frame_period / 1000);
+				}	
 
 				// Check for win condition
 				if (timeLeft <= 0) {
@@ -267,7 +273,14 @@ io.on('connection', (socket) => {
 					console.log('Game ID: ', gameId, " | Time's up, game over (loss)");
 					io.to(gameId).emit('gameOver', { win: false });					// Stop the game loop
 					clearInterval(gameLoopId);
-				} else if (checkMarkerCollision(ball, hole)) {
+				} else if (checkMarkerCollision(balls[0], hole)) {
+					// Game over, players win -> Emit game over event to all players (win)
+					console.log('Game ID: ', gameId, " | Ball reached the hole, game over (win)");
+					io.to(gameId).emit('gameOver', { win: true });
+
+					// Stop the game loop
+					clearInterval(gameLoopId);
+				} else if(checkMarkerCollision(balls[1], hole)){
 					// Game over, players win -> Emit game over event to all players (win)
 					console.log('Game ID: ', gameId, " | Ball reached the hole, game over (win)");
 					io.to(gameId).emit('gameOver', { win: true });
@@ -277,7 +290,7 @@ io.on('connection', (socket) => {
 				} else {
 					// Game still in progress - emit updated game state to all players
 					io.to(gameId).emit('updateGameState', {
-						ball: ball,
+						balls: balls,
 						timeLeft: timeLeft,
 					});
 				}
