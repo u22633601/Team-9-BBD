@@ -122,10 +122,6 @@ function updateGameArea() {
 	GameArea.clear();
 	gameHole.update();
 	
-	//GamePiece.newPos();
-	//handleCollision();
-	//testWall.update();
-	//testWall2.update();
 	for(i = 0; i < Obstacles.length; i++){
 		Obstacles[i].update();
 	}
