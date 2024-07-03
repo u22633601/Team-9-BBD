@@ -2,6 +2,7 @@ class Player {
     constructor(username, socket) {
         this.username = username;
         this.socket = socket;
+        this.team = null;
 
         // These are internal, DO NOT USE, use getOrientation() instead
         this.beta = 0;
@@ -16,7 +17,7 @@ class Player {
             this.gamma = packet.orientation_data.gamma;
             
             // console.log('Player: ', this.username, '\t|\torientation', this.gamma, this.beta);
-            console.log('Player: ', this.username, '\t|\tscaled-orientation', this.getOrientation());
+            // console.log('Player: ', this.username, '\t|\tscaled-orientation', this.getOrientation());
         });
     }
 

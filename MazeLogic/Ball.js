@@ -3,8 +3,10 @@ const MazeObject = require('./MazeObject.js');
 // Class that generates a ball object (a ball with a position and velocity)
 // - Simulates constant acceleration movement of the ball through them maze
 class Ball extends MazeObject {
-	constructor(x, y, radius) {
+	constructor(x, y, radius, team) {
 		super(x, y, radius);
+
+		this.team = team;
 
 		this.velocity = { x: 0, y: 0 };
 		this.acceleration = { x: 0, y: 0 };
