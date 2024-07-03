@@ -80,7 +80,10 @@ io.on('connection', (socket) => {
 			} else {
 				game.viewers.push(username);
 				socket.join(gameId);
-				io.to(gameId).emit('playerJoined', game.players.map(player => player.username));
+				io.to(gameId).emit('playerJoined', {
+					players: game.players.map(player => player.username), 
+					viewers: game.viewers
+				});
 				socket.emit('gameJoined', {
 					gameId,
 					players: game.players.map(player => player.username),
@@ -131,8 +134,10 @@ io.on('connection', (socket) => {
 				game.sockets.push(socket);
 				socket.join(gameId);
 				io.to(gameId).emit(
-					'playerJoined',
-					game.players.map((player) => player.username)
+					'playerJoined',{
+						players: game.players.map(player => player.username), 
+						viewers: game.viewers
+					}
 				);
 				socket.emit('gameJoined', {
 					gameId,

@@ -140,8 +140,8 @@ socket.on('gameCreated', (gameId) => {
     updatePlayerList([currentUsername]);
 });
 
-socket.on('playerJoined', (players) => {
-    updatePlayerList(players);
+socket.on('playerJoined', (data) => {
+    updatePlayerList(data.players, data.viewers);
 });
 
 socket.on('gameJoined', (data) => {
