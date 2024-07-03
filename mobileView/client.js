@@ -185,7 +185,6 @@ socket.on('gameOver', (data) => {
     teamInfoElement.textContent = `You are on the ${playerTeam} team`;
     teamInfoElement.style.color = playerTeam;
 
-    timerDisplay.classList.add("hidden");
     winLoseScreen.classList.remove('hidden');
 });
 
