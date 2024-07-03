@@ -215,18 +215,14 @@ io.on('connection', (socket) => {
 								// Set velocities to 0
 								if (Math.abs(ball.x - (i * maze.wallSize + maze.wallSize / 2)) < (maze.wallSize / 2 + ball.radius)){
 									ball.velocityY = -ball.velocityY;
+									ball.acceleration.y = 0;
 								}
 								else{
 									ball.velocityX = -ball.velocityX;
+									ball.acceleration.x = 0;
 								}
-
-								ball.acceleration.x = 0;
-								ball.acceleration.y = 0;
-
-
 									
 								break;
-								
 							}
 						}
 					}
