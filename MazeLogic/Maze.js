@@ -1,12 +1,13 @@
 // Class that generates a maze object (a 2D array of cells with walls and paths)
 class Maze {
-	constructor(sizeX, sizeY, startX, startY, finishX, finishY) {
+	constructor(sizeX, sizeY, teamAX, teamAY, teamBX, teamBY, finishX, finishY) {
 		// Generate a maze
 		// Create a 2D array of cells (1 = wall, 0 = path)
-		this.map = this.generateMaze(sizeX, sizeY, startX, startY, finishX, finishY);
+		this.map = this.generateMaze(sizeX, sizeY, teamAX, teamAY, teamBX, teamBY, finishX, finishY);
 		this.wallSize = 100/sizeX;
 
-        this.start = { x: startX, y: startY };
+        this.redStart = { x: teamAX, y: teamAY };
+        this.blueStart = { x: teamBX, y: teamBY };
         this.finish = { x: finishX, y: finishY };
 	}
 

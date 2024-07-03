@@ -149,11 +149,18 @@ io.on('connection', (socket) => {
 		}
 	});
 
-	function AddBallToMaze(ball, maze){
+	function AddRedBallToMaze(ball, maze){
 		ball.radius = maze.wallSize / 4;
 		
-		ball.x = maze.start.x * maze.wallSize + maze.wallSize / 2;
-		ball.y = maze.start.y * maze.wallSize + maze.wallSize / 2;
+		ball.x = maze.redStart.x * maze.wallSize + maze.wallSize / 2;
+		ball.y = maze.redStart.y * maze.wallSize + maze.wallSize / 2;
+	}
+
+	function AddBlueBallToMaze(ball, maze){
+		ball.radius = maze.wallSize / 4;
+		
+		ball.x = maze.blueStart.x * maze.wallSize + maze.wallSize / 2;
+		ball.y = maze.blueStart.y * maze.wallSize + maze.wallSize / 2;
 	}
 
 	function AddEndToMaze(end, maze){
@@ -182,14 +189,14 @@ io.on('connection', (socket) => {
 
 			// 11x11, start position at cell 1,1 and end at cell 9,9 
 			// const maze = new Maze(15, 15, getRandomInt(1, 14), getRandomInt(1, 14), getRandomInt(1, 14), getRandomInt(1, 14));
-			const maze = new Maze(15, 15, 1, 1, 13, 13);
+			const maze = new Maze(15, 15, 1, 1, 13, 13, 6, 6);
 
 			let balls = [new Ball(0, 0, 0, teams[0]), new Ball(0, 0, 0, teams[1])];
 			
 			let hole = new MazeObject(0, 0, 0);
 
-			AddBallToMaze(balls[0], maze);
-			AddBallToMaze(balls[1], maze);
+			AddRedBallToMaze(balls[0], maze);
+			AddBlueBallToMaze(balls[1], maze);
 			AddEndToMaze(hole, maze);
 
 			game.maze = maze;
