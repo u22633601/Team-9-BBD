@@ -241,8 +241,6 @@ io.on('connection', (socket) => {
 					for (let i = 0; i < maze.map.length; i++) {
 						for (let j = 0; j < maze.map[i].length; j++) {
 							if (maze.map[i][j] == 1) {
-								// if ((futureCoordinates.x >= j - 5 && futureCoordinates.x <= j + 5) || (futureCoordinates.y >= i - 5 && futureCoordinates.y <= i + 5)) {
-								// if ((futureCoordinates.x >= j * maze.wallSize - 5 && futureCoordinates.x <= j * maze.wallSize + 5) || (futureCoordinates.y >= i * maze.wallSize && futureCoordinates.y <= i * maze.wallSize)) {
 								if ((Math.abs(futureCoordinates.x - (i * maze.wallSize + maze.wallSize / 2)) < (maze.wallSize / 2 + ball.radius) &&
 									Math.abs(futureCoordinates.y - (j * maze.wallSize + maze.wallSize / 2)) < (maze.wallSize / 2 + ball.radius))
 								) {
@@ -250,17 +248,17 @@ io.on('connection', (socket) => {
 									// console.log("Collision detected at maze wall")
 
 									// Set velocities to 0
-									if (Math.abs(ball.x - (i * maze.wallSize + maze.wallSize / 2)) < (maze.wallSize / 2 + ball.radius)) {
+									if (Math.abs(ball.x - (i * maze.wallSize + maze.wallSize / 2)) <= (maze.wallSize / 2 + ball.radius)) {
 										ball.velocityY = -ball.velocityY;
 										ball.acceleration.y = 0;
 									}
-									if(Math.abs(ball.y - (j * maze.wallSize + maze.wallSize / 2)) < (maze.wallSize / 2 + ball.radius)){
+									if(Math.abs(ball.y - (j * maze.wallSize + maze.wallSize / 2)) <= (maze.wallSize / 2 + ball.radius)){
 										ball.velocityX = -ball.velocityX;
 										ball.acceleration.x = 0;
 									}
 				
 
-									break;
+									// break;
 								}
 							}
 						}
@@ -296,8 +294,6 @@ io.on('connection', (socket) => {
 						balls: balls.map(b => ({ x: b.x, y: b.y, team: b.team })),
 						// timeLeft: timeLeft,
 					});
-
-					console.log("updateGameState emitted");
 				}
 
 				// console.timeEnd('gameLoop Execution Time');
