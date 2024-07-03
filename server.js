@@ -32,6 +32,8 @@ app.use(express.static(path.join(__dirname, 'mobileView')));
 
 const games = new Map();
 
+const frame_period = 1000 / 60;
+
 io.on('connection', (socket) => {
 	socket.on('createGame', (username) => {
 		const gameId = Math.random().toString(36).substring(2, 8);
@@ -143,6 +145,7 @@ io.on('connection', (socket) => {
 			let ball = new Ball(85, 85, 2);
 			let hole = new MazeObject(12, 12, 2);
 
+			// 11x11, start position at cell 1,1 and end at cell 9,9 
 			const maze = new Maze(11, 11, 1, 1, 9, 9);
 
 			game.maze = maze;
@@ -185,17 +188,17 @@ io.on('connection', (socket) => {
 			// Start game loop for this game (60 frames per seconds)
 			let gameLoopId = setInterval(() => {
 				// Collect all orientation data from all players
-				let resultantForce = { x: 0, y: 0 };
 				for (let player of game.players) {
 					// Generate resultant force vector from all players' orientation data (needs conversion from angles to force x and y vectors)
 					// - Invert the y-axis for the orientation data
 					let orientation = player.getOrientation();
-					resultantForce.x += orientation.y*0.01	;
-					resultantForce.y += orientation.x*0.01;
+
+					ball.acceleration.x += orientation.y*9.8 * 5;
+					ball.acceleration.y += orientation.x*9.8 * 5;
 				}
 
 				// Update ball velocity and position based on resultant force vector
-				let futureCoordinates = ball.getFuturePosition();
+				let futureCoordinates = ball.getFuturePosition(frame_period/1000);
 
 				// let updatePosition = true
 				for (let i = 0; i < maze.map.length; i++) {
@@ -208,30 +211,28 @@ io.on('connection', (socket) => {
 							) {   		
 								// Reverse applied force
 								console.log("Collision detected at maze wall")
-								// resultantForce.x = -3 *resultantForce.x;
-								// resultantForce.y = -3*resultantForce.y;
 
 								// Set velocities to 0
-								if (Math.abs(futureCoordinates.x - (i * maze.wallSize + maze.wallSize / 2)) < (maze.wallSize / 2 + ball.radius))
-									// ball.velocityY = -ball.velocityY;
-									// ball.velocityX = -ball.velocityX;
+								if (Math.abs(ball.x - (i * maze.wallSize + maze.wallSize / 2)) < (maze.wallSize / 2 + ball.radius)){
+									ball.velocityY = -ball.velocityY;
+								}
+								else{
+									ball.velocityX = -ball.velocityX;
+								}
 
-								resultantForce.x = 0;
-								resultantForce.y = 0;
+								ball.acceleration.x = 0;
+								ball.acceleration.y = 0;
 
-								ball.velocityX = 0;
-								ball.velocityY = 0;
 
+									
 								break;
-
 								
 							}
 						}
 					}
 				}
 
-				ball.applyForce(resultantForce.x, resultantForce.y);
-				ball.updatePosition();
+				ball.updatePosition(frame_period/1000);
 				
 
 				// Check for win condition
@@ -254,7 +255,7 @@ io.on('connection', (socket) => {
 						timeLeft: timeLeft,
 					});
 				}
-			}, 1000 / 60);
+			}, frame_period);
 		}
 	});
 
