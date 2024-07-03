@@ -136,6 +136,24 @@ io.on('connection', (socket) => {
 		}
 	});
 
+	function AddBallToMaze(ball, maze){
+		ball.radius = maze.wallSize / 4;
+		
+		ball.x = maze.start.x * maze.wallSize + maze.wallSize / 2;
+		ball.y = maze.start.y * maze.wallSize + maze.wallSize / 2;
+	}
+
+	function AddEndToMaze(end, maze){
+		end.radius = maze.wallSize / 4;
+		
+		end.x = maze.finish.x * maze.wallSize + maze.wallSize / 2;
+		end.y = maze.finish.y * maze.wallSize + maze.wallSize / 2;
+	}
+
+	function getRandomInt(min, max) {
+		return Math.floor(Math.random() * (max - min) + min);
+	}
+
 	socket.on('startGame', (gameId) => {
 		const game = games.get(gameId);
 		if (game && socket.id === game.host) {
@@ -143,16 +161,20 @@ io.on('connection', (socket) => {
 
 			// Initialise game state variables: Ball, Maze, Hole
 
-			let ball = new Ball(85, 85, 2);
-			let hole = new MazeObject(12, 12, 2);
 
 			// 11x11, start position at cell 1,1 and end at cell 9,9 
-			const maze = new Maze(11, 11, 1, 1, 9, 9);
+			// const maze = new Maze(15, 15, getRandomInt(1, 14), getRandomInt(1, 14), getRandomInt(1, 14), getRandomInt(1, 14));
+			const maze = new Maze(15, 15, 1, 1, 13, 13);
+
+			let ball = new Ball(0, 0, 0);
+			let hole = new MazeObject(0, 0, 0);
+
+			AddBallToMaze(ball, maze);
+			AddEndToMaze(hole, maze);
 
 			game.maze = maze;
 
-			// Setting the time left for the game based on number of players
-			timeLeft = Math.floor(PUZZLE_TIME/game.players.length);
+			timeLeft = 500;
 
 			console.log(
 				'gameId:',

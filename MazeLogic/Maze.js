@@ -5,6 +5,9 @@ class Maze {
 		// Create a 2D array of cells (1 = wall, 0 = path)
 		this.map = this.generateMaze(sizeX, sizeY, startX, startY, finishX, finishY);
 		this.wallSize = 100/sizeX;
+
+        this.start = { x: startX, y: startY };
+        this.finish = { x: finishX, y: finishY };
 	}
 
 	getMazeData(){
