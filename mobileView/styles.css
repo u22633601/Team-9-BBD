@@ -23,6 +23,14 @@ body {
     /* padding: 20px; */
 }
 
+@media (max-width: 900px) {
+    body {
+        display: flex;
+        flex-direction: column;
+    }
+}
+
+
 .screen {
     background-color: white;
     border-radius: 15px;
@@ -157,6 +165,7 @@ button:disabled {
     /* width: 100vmin; */
     /* height: 100vmin; */
 }
+
 
 @keyframes fadeInOut {
     0%, 100% { opacity: 0; }
