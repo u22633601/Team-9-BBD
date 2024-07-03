@@ -156,6 +156,10 @@ socket.on('initGameState', (state) => {
     showToast('Game started!');
     console.log('Game state: ', state);
     // console.log("Ball's current position: ", state.ball.x, state.ball.y);
+
+    let redBall = {x: state.redBall.x, y: state.redBall.y, radius: state.redBall.radius};
+    let blueBall = {x: state.blueBall.x, y: state.blueBall.y, radius: state.blueBall.radius};
+
     startGame(state.ball.x, state.ball.y, state.ball.radius, state.maze, state.hole.x, state.hole.y, state.hole.radius);
 });
 
@@ -199,6 +203,9 @@ socket.on('updateGameState', (state) => {
 
     timer = state.timeLeft;
     timerDisplay.textContent = `Time Left: ${timer}s`; // Update the timer display
+
+    let redBall = {x: state.redBall.x, y: state.redBall.y, radius: state.redBall.radius};
+    let blueBall = {x: state.blueBall.x, y: state.blueBall.y, radius: state.blueBall.radius}; 
 
     // FIXME: potential issue here, double check that the ball updates correctly, might have to do a member wise assignment
     ball = state.ball;
