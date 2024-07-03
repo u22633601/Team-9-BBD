@@ -32,6 +32,7 @@ app.use(express.static(path.join(__dirname, 'mobileView')));
 
 const games = new Map();
 
+const PUZZLE_TIME = 100; 
 const frame_period = 1000 / 60;
 
 io.on('connection', (socket) => {
@@ -150,7 +151,8 @@ io.on('connection', (socket) => {
 
 			game.maze = maze;
 
-			timeLeft = 10;
+			// Setting the time left for the game based on number of players
+			timeLeft = Math.floor(PUZZLE_TIME/game.players.length);
 
 			console.log(
 				'gameId:',
