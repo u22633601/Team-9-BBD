@@ -193,8 +193,8 @@ io.on('connection', (socket) => {
 					// - Invert the y-axis for the orientation data
 					let orientation = player.getOrientation();
 
-					ball.acceleration.x += orientation.y*9.8 * 5;
-					ball.acceleration.y += orientation.x*9.8 * 5;
+					ball.acceleration.x += orientation.y*9.8 * 10;
+					ball.acceleration.y += orientation.x*9.8 * 10;
 				}
 
 				// Update ball velocity and position based on resultant force vector
