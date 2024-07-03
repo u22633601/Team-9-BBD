@@ -202,14 +202,6 @@ socket.on('gameOver', (data) => {
 //   });
 
 socket.on('updateGameState', (state) => {
-    // const coordinateLabel = document.getElementById('coordinate-display');
-    // coordinateLabel.textContent = `Ball's current position: ${state.ball.x}, ${state.ball.y}`;
-
-    // console.log('Time left: ', state.timeLeft);
-    // console.log("Ball's current position: ", state.ball.x, state.ball.y);
-
-    // timer = state.timeLeft;
-    // timerDisplay.textContent = `Time Left: ${timer}s`; // Update the timer display
 
     balls = state.balls;
     updateBallPositions(balls);

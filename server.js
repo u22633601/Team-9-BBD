@@ -279,7 +279,7 @@ io.on('connection', (socket) => {
 				} else {
 					// Game still in progress - emit updated game state to all players
 					io.to(gameId).emit('updateGameState', {
-						balls: balls,
+						balls: balls.map(b => ({ x: b.x, y: b.y, team: b.team })),
 						// timeLeft: timeLeft,
 					});
 
