@@ -26,8 +26,8 @@ const timerDisplay = document.getElementById('timer-display');
 
 let currentUsername = '';
 let isHost = false;
-
-let timer = 0;
+let playerTeam = '';
+// let timer = 0;
 let balls = {};
 
 // This function sets up the socket to transmit the orientation data to the server
@@ -152,7 +152,6 @@ socket.on('gameJoined', (data) => {
     }
 });
 
-let playerTeam = '';
 
 socket.on('initGameState', (state) => {
     showToast('Game started!');
@@ -161,7 +160,7 @@ socket.on('initGameState', (state) => {
     if (currentPlayer) {
         playerTeam = currentPlayer.team;
         const teamInfoElement = document.getElementById('team-info');
-        teamInfoElement.textContent = `You were on the ${playerTeam} team`;
+        teamInfoElement.textContent = `You are on the ${playerTeam} team`;
         teamInfoElement.style.color = playerTeam;
         teamInfoElement.classList.remove('hidden');
     }
@@ -175,7 +174,7 @@ socket.on('joinError', (message) => {
 });
 
 socket.on('gameOver', (data) => {
-    if (data.win) {
+    if (data.team === playerTeam) {
         winLoseMessage.textContent = 'You win!';
     } else {
         winLoseMessage.textContent = 'You lose!';
@@ -183,16 +182,16 @@ socket.on('gameOver', (data) => {
 
     // Display team information
     const teamInfoElement = document.getElementById('team-info');
-    teamInfoElement.textContent = `You were on the ${playerTeam} team`;
+    teamInfoElement.textContent = `You are on the ${playerTeam} team`;
     teamInfoElement.style.color = playerTeam;
 
     timerDisplay.classList.add("hidden");
     winLoseScreen.classList.remove('hidden');
 });
 
-socket.on('updateTime', (timeLeft) => {
-    timerDisplay.textContent = `Time Left: ${timeLeft}s`;
-});
+// socket.on('updateTime', (timeLeft) => {
+    // timerDisplay.textContent = `Time Left: ${timeLeft}s`;
+// });
 
 // socket.on('gameOver', (data) => {
 //     if (data.win) {
@@ -210,8 +209,8 @@ socket.on('updateGameState', (state) => {
     // console.log('Time left: ', state.timeLeft);
     // console.log("Ball's current position: ", state.ball.x, state.ball.y);
 
-    timer = state.timeLeft;
-    timerDisplay.textContent = `Time Left: ${timer}s`; // Update the timer display
+    // timer = state.timeLeft;
+    // timerDisplay.textContent = `Time Left: ${timer}s`; // Update the timer display
 
     balls = state.balls;
     updateBallPositions(balls);

@@ -181,7 +181,7 @@ io.on('connection', (socket) => {
 
 			game.maze = maze;
 
-			timeLeft = 500;
+			// timeLeft = 500;
 
 			console.log(
 				'gameId:',
@@ -192,8 +192,8 @@ io.on('connection', (socket) => {
 				balls,
 				'\n Hole: ',
 				hole,
-				'\n Time Left: ',
-				timeLeft
+				// '\n Time Left: ',
+				// timeLeft
 			);
 
 			// Emit initial game state to all players
@@ -201,21 +201,21 @@ io.on('connection', (socket) => {
 				balls: balls,
 				hole: hole,
 				maze: maze.getMazeData(),
-				timeLeft: timeLeft,
+				// timeLeft: timeLeft,
 				players: game.players.map(p => ({ username: p.username, team: p.team }))
 			});
 
 			// Start timer for this game
-			let gameTimerId = setInterval(() => {
-				console.log("<", gameId, "> Time Left: ", timeLeft);
-				timeLeft -= 1;
-				io.to(gameId).emit('updateTime', timeLeft); // Emit timer updates
+			// let gameTimerId = setInterval(() => {
+			// 	console.log("<", gameId, "> Time Left: ", timeLeft);
+			// 	timeLeft -= 1;
+			// 	io.to(gameId).emit('updateTime', timeLeft); // Emit timer updates
 
-				// Stop the timer when time runs out
-				if (timeLeft <= 0) {
-					clearInterval(gameTimerId);
-				}
-			}, 1000);
+			// 	// Stop the timer when time runs out
+			// 	if (timeLeft <= 0) {
+			// 		clearInterval(gameTimerId);
+			// 	}
+			// }, 1000);
 
 			// Start game loop for this game (60 frames per seconds)
 			let gameLoopId = setInterval(() => {
@@ -246,7 +246,7 @@ io.on('connection', (socket) => {
 									Math.abs(futureCoordinates.y - (j * maze.wallSize + maze.wallSize / 2)) < (maze.wallSize / 2 + ball.radius))
 								) {
 									// Reverse applied force
-									console.log("Collision detected at maze wall")
+									// console.log("Collision detected at maze wall")
 
 									// Set velocities to 0
 									if (Math.abs(ball.x - (i * maze.wallSize + maze.wallSize / 2)) < (maze.wallSize / 2 + ball.radius)) {
@@ -268,22 +268,23 @@ io.on('connection', (socket) => {
 				}	
 
 				// Check for win condition
-				if (timeLeft <= 0) {
-					// Game over, time's up -> Emit game over event to all players (loss)
-					console.log('Game ID: ', gameId, " | Time's up, game over (loss)");
-					io.to(gameId).emit('gameOver', { win: false });					// Stop the game loop
-					clearInterval(gameLoopId);
-				} else if (checkMarkerCollision(balls[0], hole)) {
+				// if (timeLeft <= 0) {
+				// 	// Game over, time's up -> Emit game over event to all players (loss)
+				// 	console.log('Game ID: ', gameId, " | Time's up, game over (loss)");
+				// 	io.to(gameId).emit('gameOver', { win: false });					// Stop the game loop
+				// 	clearInterval(gameLoopId);
+				// } else 
+				if (checkMarkerCollision(balls[0], hole)) {
 					// Game over, players win -> Emit game over event to all players (win)
 					console.log('Game ID: ', gameId, " | Ball reached the hole, game over (win)");
-					io.to(gameId).emit('gameOver', { win: true });
+					io.to(gameId).emit('gameOver', { team: balls[0].team });
 
 					// Stop the game loop
 					clearInterval(gameLoopId);
 				} else if(checkMarkerCollision(balls[1], hole)){
 					// Game over, players win -> Emit game over event to all players (win)
 					console.log('Game ID: ', gameId, " | Ball reached the hole, game over (win)");
-					io.to(gameId).emit('gameOver', { win: true });
+					io.to(gameId).emit('gameOver', { team: balls[1].team });
 
 					// Stop the game loop
 					clearInterval(gameLoopId);
@@ -291,7 +292,7 @@ io.on('connection', (socket) => {
 					// Game still in progress - emit updated game state to all players
 					io.to(gameId).emit('updateGameState', {
 						balls: balls,
-						timeLeft: timeLeft,
+						// timeLeft: timeLeft,
 					});
 				}
 			}, frame_period);
