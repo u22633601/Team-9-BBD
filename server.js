@@ -80,7 +80,10 @@ io.on('connection', (socket) => {
 			} else {
 				game.viewers.push(username);
 				socket.join(gameId);
-				io.to(gameId).emit('playerJoined', game.players.map(player => player.username));
+				io.to(gameId).emit('playerJoined', {
+					players: game.players.map(player => player.username), 
+					viewers: game.viewers
+				});
 				socket.emit('gameJoined', {
 					gameId,
 					players: game.players.map(player => player.username),
@@ -131,8 +134,10 @@ io.on('connection', (socket) => {
 				game.sockets.push(socket);
 				socket.join(gameId);
 				io.to(gameId).emit(
-					'playerJoined',
-					game.players.map((player) => player.username)
+					'playerJoined',{
+						players: game.players.map(player => player.username), 
+						viewers: game.viewers
+					}
 				);
 				socket.emit('gameJoined', {
 					gameId,
@@ -314,6 +319,9 @@ io.on('connection', (socket) => {
 		const game = games.get(gameId);
 
 		console.log("Game: ", game);
+
+		// Printing ready status of all players
+		console.log("Players ready status: ", game.players.map(player => player.ready));
 
 		if(game.players.every((player) => player.ready)) {
 			startGame(gameId);
