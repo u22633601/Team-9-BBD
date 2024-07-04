@@ -51,6 +51,13 @@ let readyUpWait = null;
 const PUZZLE_TIME = 100; 
 const frame_period = 1000 / 60;
 
+class Viewer {
+	constructor(username, socket) {
+		this.username = username;
+		this.socket = socket;
+	}
+}
+
 io.on('connection', (socket) => {
 	socket.on('createGame', (username) => {
 		const gameId = Math.random().toString(10).substring(2, 6);
@@ -75,19 +82,19 @@ io.on('connection', (socket) => {
 		const game = games.get(gameId);
 		if (game) {
 			if (game.players.map(player => player.username).includes(username) ||
-				game.viewers.includes(username)) {
+				game.viewers.map(viewer => viewer.username).includes(username)) {
 				socket.emit('joinError', 'Username is already taken');
 			} else {
-				game.viewers.push(username);
+				game.viewers.push(new Viewer(username, socket));
 				socket.join(gameId);
 				io.to(gameId).emit('playerJoined', {
 					players: game.players.map(player => player.username), 
-					viewers: game.viewers
+					viewers: game.viewers.map(viewer => viewer.username)
 				});
 				socket.emit('gameJoined', {
 					gameId,
 					players: game.players.map(player => player.username),
-					viewers: game.viewers,
+					viewers: game.viewers.map(viewer => viewer.username),
 					isHost: false
 				});
 				console.log('gameId:', gameId, '\t|\tViewer joined the game, username: ', username);
@@ -136,13 +143,13 @@ io.on('connection', (socket) => {
 				io.to(gameId).emit(
 					'playerJoined',{
 						players: game.players.map(player => player.username), 
-						viewers: game.viewers
+						viewers: game.viewers.map(viewer => viewer.username)
 					}
 				);
 				socket.emit('gameJoined', {
 					gameId,
 					players: game.players.map((player) => player.username),
-					viewers: game.viewers,
+					viewers: game.viewers.map(viewer => viewer.username),
 					isHost: false,
 				});
 			}
@@ -190,7 +197,18 @@ io.on('connection', (socket) => {
 		// 11x11, start position at cell 1,1 and end at cell 9,9 
 		// THis line is gross but basically generates odd numbers between 1 and 19
 		// The start and end positions are always odd numbers to ensure the maze draws correctly
-		const maze = new Maze(21, 21, getRandomInt(0, 10)*2+1, getRandomInt(0, 10)*2+1, getRandomInt(0, 10)*2+1, getRandomInt(0, 10)*2+1);
+
+		let teamAstart = {x: 0, y: 0};
+		let teamBstart = {x: 0, y: 0};
+
+		while(teamAstart.x == teamBstart.x && teamAstart.y == teamBstart.y){
+			teamAstart.x = getRandomInt(0, 10)*2+1;
+			teamAstart.y = getRandomInt(0, 10)*2+1;
+			teamBstart.x = getRandomInt(0, 10)*2+1;
+			teamBstart.y = getRandomInt(0, 10)*2+1;
+		}
+
+		const maze = new Maze(21, 21, teamAstart.x, teamAstart.y, teamBstart.x, teamBstart.y);
 		// const maze = new Maze(21, 21, 1, 1, 19, 19);
 
 		let balls = [new Ball(0, 0, 0, teams[0]), new Ball(0, 0, 0, teams[1])];
@@ -323,11 +341,25 @@ io.on('connection', (socket) => {
 		// Printing ready status of all players
 		console.log("Players ready status: ", game.players.map(player => player.ready));
 
-		if(game.players.every((player) => player.ready)) {
+		if(game.players.every((player) => player.ready == 1)) {
 			startGame(gameId);
 			clearInterval(readyUpWait);
 		}
+
+		if(game.players.some((player) => player.ready == 2)) {
+			game.players.forEach(player => {
+				player.endGame();
+			});
+
+		    game.viewers.forEach(viewer => {
+				viewer.socket.emit('endGame');
+			});
+
+			clearInterval(readyUpWait);
+		}
 	}
+
+
 
 	socket.on('startGame', (gameId) => {
 		let game = games.get(gameId);
