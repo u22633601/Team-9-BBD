@@ -17,7 +17,7 @@ function startGame(balls, maze, hole) {
 		Balls.push(new createPlayer(balls[i].x, balls[i].y, balls[i].radius, balls[i].team == "red" ? "#ff0000" : "blue"));
 	}
 	
-	gameHole = new createPlayer(hole.x, hole.y, hole.radius, "#2f2f2f");
+	gameHole = new createPlayer(hole.x, hole.y, hole.radius, "orange");
 
 	for(let i = 0; i < gameMaze.map.length; i++){
 		for(let j = 0; j < gameMaze.map[i].length; j++){

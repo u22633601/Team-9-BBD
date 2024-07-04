@@ -8,7 +8,7 @@ class Player {
         this.beta = 0;
         this.gamma = 0;
 
-        this.ready = false;
+        this.ready = 0;
 
         this.setupOrientationDataReception();
         this.setupReadyStateReception();
@@ -25,9 +25,13 @@ class Player {
     }
 
     setupReadyStateReception() {
-        this.socket.on('playAgain', () => {
-            this.ready = true;
+        this.socket.on('playAgain', (status) => {
+            this.ready = status;
         });
+    }
+
+    endGame(){
+        this.socket.emit('endGame');
     }
 
     // This is the only method that should be used to access the orientation data

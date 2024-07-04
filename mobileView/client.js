@@ -124,11 +124,12 @@ startGameBtn.addEventListener('click', () => {
 });
 
 backToLobbyBtn.addEventListener('click', () => {
+    socket.emit('playAgain', 2);
     location.reload(true);
 });
 
 playAgainBtn.addEventListener('click', () => {
-    socket.emit('playAgain');
+    socket.emit('playAgain', 1);
     showToast('Waiting for other players to play again...');
 });
 
@@ -216,6 +217,10 @@ socket.on('updateGameState', (state) => {
 
     balls = state.balls;
     updateBallPositions(balls);
+});
+
+socket.on('endGame', () =>{
+    location.reload(true);
 });
 
 function updatePlayerList(players, viewers = []) {
