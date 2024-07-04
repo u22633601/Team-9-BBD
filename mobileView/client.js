@@ -18,6 +18,7 @@ const toast = document.getElementById('toast');
 const winLoseScreen = document.getElementById('win-lose-screen');
 const winLoseMessage = document.getElementById('win-lose-message');
 const playAgainBtn = document.getElementById('play-again-btn');
+const backToLobbyBtn = document.getElementById('back-to-lobby-btn');
 
 const viewGameBtn = document.getElementById('view-game-btn');
 const viewerGameIdInput = document.getElementById('viewer-game-id-input');
@@ -122,11 +123,13 @@ startGameBtn.addEventListener('click', () => {
     socket.emit('startGame', gameIdDisplay.textContent);
 });
 
-playAgainBtn.addEventListener('click', () => {
+backToLobbyBtn.addEventListener('click', () => {
     location.reload(true);
+});
 
-    // winLoseScreen.classList.add('hidden');
-    // lobbyScreen.classList.remove('hidden');
+playAgainBtn.addEventListener('click', () => {
+    socket.emit('playAgain');
+    showToast('Waiting for other players to play again...');
 });
 
 socket.on('gameCreated', (gameId) => {
@@ -137,8 +140,8 @@ socket.on('gameCreated', (gameId) => {
     updatePlayerList([currentUsername]);
 });
 
-socket.on('playerJoined', (players) => {
-    updatePlayerList(players);
+socket.on('playerJoined', (data) => {
+    updatePlayerList(data.players, data.viewers);
 });
 
 socket.on('gameJoined', (data) => {
@@ -174,7 +177,15 @@ socket.on('joinError', (message) => {
 });
 
 socket.on('gameOver', (data) => {
-    if (data.team === playerTeam) {
+    if (playerTeam === '') {
+        if (data.team === 'red') {
+            winLoseMessage.textContent = 'Red team wins!';
+        }
+        else if (data.team === 'blue'){
+            winLoseMessage.textContent = 'Blue team wins!';
+        }
+    }
+    else if (data.team === playerTeam) {
         winLoseMessage.textContent = 'You win!';
     } else {
         winLoseMessage.textContent = 'You lose!';

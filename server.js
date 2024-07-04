@@ -17,6 +17,7 @@ const Maze = require('./MazeLogic/Maze.js');
 const MazeObject = require('./MazeLogic/MazeObject.js');
 const Ball = require('./MazeLogic/Ball.js');
 const { time } = require('console');
+const { start } = require('repl');
 
 var options = {
 	key: fs.readFileSync('certs/mazegame.key'),
@@ -45,12 +46,14 @@ app.use(express.static(path.join(__dirname, 'mobileView')));
 
 const games = new Map();
 
+let readyUpWait = null;
+
 const PUZZLE_TIME = 100; 
 const frame_period = 1000 / 60;
 
 io.on('connection', (socket) => {
 	socket.on('createGame', (username) => {
-		const gameId = Math.random().toString(36).substring(2, 8);
+		const gameId = Math.random().toString(10).substring(2, 6);
 
 		const player = new Player(username, socket);
 
@@ -77,7 +80,10 @@ io.on('connection', (socket) => {
 			} else {
 				game.viewers.push(username);
 				socket.join(gameId);
-				io.to(gameId).emit('playerJoined', game.players.map(player => player.username));
+				io.to(gameId).emit('playerJoined', {
+					players: game.players.map(player => player.username), 
+					viewers: game.viewers
+				});
 				socket.emit('gameJoined', {
 					gameId,
 					players: game.players.map(player => player.username),
@@ -128,8 +134,10 @@ io.on('connection', (socket) => {
 				game.sockets.push(socket);
 				socket.join(gameId);
 				io.to(gameId).emit(
-					'playerJoined',
-					game.players.map((player) => player.username)
+					'playerJoined',{
+						players: game.players.map(player => player.username), 
+						viewers: game.viewers
+					}
 				);
 				socket.emit('gameJoined', {
 					gameId,
@@ -167,141 +175,166 @@ io.on('connection', (socket) => {
 		return Math.floor(Math.random() * (max - min) + min);
 	}
 
-	socket.on('startGame', (gameId) => {
+	function startGame(gameId){
 		const game = games.get(gameId);
-		if (game && socket.id === game.host) {
-			game.isStarted = true;
 
-			const teams = ['red', 'blue'];
-			game.players.forEach((player, index) => {
-				player.team = teams[index % 2];
-			});
+		game.gameId = gameId;
+		game.isStarted = true;
 
-			// Initialise game state variables: Ball, Maze, Hole
+		const teams = ['red', 'blue'];
+		game.players.forEach((player, index) => {
+			player.team = teams[index % 2];
+			player.ready = false;
+		});
 
+		// 11x11, start position at cell 1,1 and end at cell 9,9 
+		// THis line is gross but basically generates odd numbers between 1 and 19
+		// The start and end positions are always odd numbers to ensure the maze draws correctly
+		const maze = new Maze(21, 21, getRandomInt(0, 10)*2+1, getRandomInt(0, 10)*2+1, getRandomInt(0, 10)*2+1, getRandomInt(0, 10)*2+1);
+		// const maze = new Maze(21, 21, 1, 1, 19, 19);
 
-			// 11x11, start position at cell 1,1 and end at cell 9,9 
-			// const maze = new Maze(15, 15, getRandomInt(1, 14), getRandomInt(1, 14), getRandomInt(1, 14), getRandomInt(1, 14));
-			const maze = new Maze(21, 21, 1, 1, 19, 19);
+		let balls = [new Ball(0, 0, 0, teams[0]), new Ball(0, 0, 0, teams[1])];
+		
+		let hole = new MazeObject(0, 0, 0);
 
-			let balls = [new Ball(0, 0, 0, teams[0]), new Ball(0, 0, 0, teams[1])];
-			
-			let hole = new MazeObject(0, 0, 0);
+		AddBallToMaze(balls[0], maze);
+		AddBallToMaze(balls[1], maze);
+		AddEndToMaze(hole, maze);
 
-			AddBallToMaze(balls[0], maze);
-			AddBallToMaze(balls[1], maze);
-			AddEndToMaze(hole, maze);
+		game.maze = maze;
 
-			game.maze = maze;
+		// timeLeft = 500;
 
-			// timeLeft = 500;
+		console.log(
+			'gameId:',
+			gameId,
+			'\t|\tGame started.\n Players: ',
+			game.players,
+			'\n Balls: ',
+			balls,
+			'\n Hole: ',
+			hole,
+			// '\n Time Left: ',
+			// timeLeft
+		);
 
-			console.log(
-				'gameId:',
-				gameId,
-				'\t|\tGame started.\n Players: ',
-				game.players,
-				'\n Balls: ',
-				balls,
-				'\n Hole: ',
-				hole,
-				// '\n Time Left: ',
-				// timeLeft
-			);
+		// Emit initial game state to all players
+		io.to(gameId).emit('initGameState', {
+			balls: balls,
+			hole: hole,
+			maze: maze.getMazeData(),
+			// timeLeft: timeLeft,
+			players: game.players.map(p => ({ username: p.username, team: p.team }))
+		});
 
-			// Emit initial game state to all players
-			io.to(gameId).emit('initGameState', {
-				balls: balls,
-				hole: hole,
-				maze: maze.getMazeData(),
-				// timeLeft: timeLeft,
-				players: game.players.map(p => ({ username: p.username, team: p.team }))
-			});
-
-			// Start game loop for this game (60 frames per seconds)
-			let gameLoopId = setInterval(() => {
-				// Collect all orientation data from all players
-				for(let ball of balls){
-					for (let player of game.players) {
-						if(player.team != ball.team){
-							continue;
-						}
-						// Generate resultant force vector from all players' orientation data (needs conversion from angles to force x and y vectors)
-						// - Invert the y-axis for the orientation data
-						let orientation = player.getOrientation();
-
-						ball.acceleration.x += orientation.y * 9.8 * 20;
-						ball.acceleration.y += orientation.x * 9.8 * 20;
+		// Start game loop for this game (60 frames per seconds)
+		let gameLoopId = setInterval(() => {
+			// Collect all orientation data from all players
+			for(let ball of balls){
+				for (let player of game.players) {
+					if(player.team != ball.team){
+						continue;
 					}
+					// Generate resultant force vector from all players' orientation data (needs conversion from angles to force x and y vectors)
+					// - Invert the y-axis for the orientation data
+					let orientation = player.getOrientation();
 
-					// Update ball velocity and position based on resultant force vector
-					let futureCoordinates = ball.getFuturePosition(frame_period / 1000);
+					ball.acceleration.x += orientation.y * 9.8 * 20;
+					ball.acceleration.y += orientation.x * 9.8 * 20;
+				}
 
-					// let updatePosition = true
-					for (let i = 0; i < maze.map.length; i++) {
-						for (let j = 0; j < maze.map[i].length; j++) {
-							if (maze.map[i][j] == 1) {
-								if ((Math.abs(futureCoordinates.x - (i * maze.wallSize + maze.wallSize / 2)) < (maze.wallSize / 2 + ball.radius) &&
-									Math.abs(futureCoordinates.y - (j * maze.wallSize + maze.wallSize / 2)) < (maze.wallSize / 2 + ball.radius))
-								) {
-									// Reverse applied force
-									// console.log("Collision detected at maze wall")
+				// Update ball velocity and position based on resultant force vector
+				let futureCoordinates = ball.getFuturePosition(frame_period / 1000);
 
-									// Set velocities to 0
-									if (Math.abs(ball.x - (i * maze.wallSize + maze.wallSize / 2)) <= (maze.wallSize / 2 + ball.radius)) {
-										ball.velocityY = -ball.velocityY;
-										ball.acceleration.y = 0;
-									}
-									if(Math.abs(ball.y - (j * maze.wallSize + maze.wallSize / 2)) <= (maze.wallSize / 2 + ball.radius)){
-										ball.velocityX = -ball.velocityX;
-										ball.acceleration.x = 0;
-									}
-				
+				// let updatePosition = true
+				for (let i = 0; i < maze.map.length; i++) {
+					for (let j = 0; j < maze.map[i].length; j++) {
+						if (maze.map[i][j] == 1) {
+							if ((Math.abs(futureCoordinates.x - (i * maze.wallSize + maze.wallSize / 2)) < (maze.wallSize / 2 + ball.radius) &&
+								Math.abs(futureCoordinates.y - (j * maze.wallSize + maze.wallSize / 2)) < (maze.wallSize / 2 + ball.radius))
+							) {
+								// Reverse applied force
+								// console.log("Collision detected at maze wall")
 
-									// break;
+								// Set velocities to 0
+								if (Math.abs(ball.x - (i * maze.wallSize + maze.wallSize / 2)) <= (maze.wallSize / 2 + ball.radius)) {
+									ball.velocityY = -ball.velocityY;
+									ball.acceleration.y = 0;
 								}
+								if(Math.abs(ball.y - (j * maze.wallSize + maze.wallSize / 2)) <= (maze.wallSize / 2 + ball.radius)){
+									ball.velocityX = -ball.velocityX;
+									ball.acceleration.x = 0;
+								}
+			
+
+								// break;
 							}
 						}
 					}
-
-					ball.updatePosition(frame_period / 1000);
-				}	
-
-				// Check for win condition
-				// if (timeLeft <= 0) {
-				// 	// Game over, time's up -> Emit game over event to all players (loss)
-				// 	console.log('Game ID: ', gameId, " | Time's up, game over (loss)");
-				// 	io.to(gameId).emit('gameOver', { win: false });					// Stop the game loop
-				// 	clearInterval(gameLoopId);
-				// } else 
-				if (checkMarkerCollision(balls[0], hole)) {
-					// Game over, players win -> Emit game over event to all players (win)
-					console.log('Game ID: ', gameId, " | Ball reached the hole, game over (win)");
-					io.to(gameId).emit('gameOver', { team: balls[0].team });
-
-					// Stop the game loop
-					clearInterval(gameLoopId);
-				} else if(checkMarkerCollision(balls[1], hole)){
-					// Game over, players win -> Emit game over event to all players (win)
-					console.log('Game ID: ', gameId, " | Ball reached the hole, game over (win)");
-					io.to(gameId).emit('gameOver', { team: balls[1].team });
-
-					// Stop the game loop
-					clearInterval(gameLoopId);
-				} else {
-					// Game still in progress - emit updated game state to all players
-					io.to(gameId).emit('updateGameState', {
-						balls: balls.map(b => ({ x: b.x, y: b.y, team: b.team })),
-						// timeLeft: timeLeft,
-					});
 				}
 
-				// console.timeEnd('gameLoop Execution Time');
-				
-			}, frame_period);
+				ball.updatePosition(frame_period / 1000);
+			}	
+
+			if (checkMarkerCollision(balls[0], hole)) {
+				// Game over, players win -> Emit game over event to all players (win)
+				console.log('Game ID: ', gameId, " | Ball reached the hole, game over (win)");
+				io.to(gameId).emit('gameOver', { team: balls[0].team });
+
+				// Stop the game loop
+				clearInterval(gameLoopId);
+
+				game.isStarted = false;
+
+				// readyUpWait = setInterval(waitForPlayers(gameId), 1000);
+				readyUpWait = setInterval(() => waitForPlayers(game.gameId), 1000);
+
+			} else if(checkMarkerCollision(balls[1], hole)){
+				// Game over, players win -> Emit game over event to all players (win)
+				console.log('Game ID: ', gameId, " | Ball reached the hole, game over (win)");
+				io.to(gameId).emit('gameOver', { team: balls[1].team });
+
+				// Stop the game loop
+				clearInterval(gameLoopId);
+
+				game.isStarted = false;
+
+				// readyUpWait = setInterval(waitForPlayers(gameId), 1000);
+				readyUpWait = setInterval(() => waitForPlayers(game.gameId), 1000);
+			} else {
+				// Game still in progress - emit updated game state to all players
+				io.to(gameId).emit('updateGameState', {
+					balls: balls.map(b => ({ x: b.x, y: b.y, team: b.team })),
+					// timeLeft: timeLeft,
+				});
+			}
+
+			// console.timeEnd('gameLoop Execution Time');
+			
+		}, frame_period);
+	}
+
+	function waitForPlayers(gameId) {
+
+		const game = games.get(gameId);
+
+		console.log("Game: ", game);
+
+		// Printing ready status of all players
+		console.log("Players ready status: ", game.players.map(player => player.ready));
+
+		if(game.players.every((player) => player.ready)) {
+			startGame(gameId);
+			clearInterval(readyUpWait);
+		}
+	}
+
+	socket.on('startGame', (gameId) => {
+		let game = games.get(gameId);
+		if (game && socket.id === game.host) {
+			startGame(gameId);
 		}
 	});
-
 
 	socket.on('no-orientation', () => {
 		// TODO: disconnecting the client or otherwise preventing them from going further is probably a good idea here

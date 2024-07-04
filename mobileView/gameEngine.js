@@ -1,13 +1,13 @@
-var Balls = [];
-var Obstacles = [];
-var testWall;
-var testWall2;
+var Balls ;
+var Obstacles;
 var gameMaze;
 var gameHole;
 
 
 function startGame(balls, maze, hole) {
 	gameMaze = maze;
+	Balls = [];
+	Obstacles = [];
 
 	removeOtherScreens();
 
@@ -35,6 +35,7 @@ function removeOtherScreens() {
 	document.getElementById('login-screen').classList.add('hidden');
 	document.getElementById('lobby-screen').classList.add('hidden');
 	document.getElementById('waiting-screen').classList.add('hidden');
+	document.getElementById('win-lose-screen').classList.add('hidden');
 }
 
 function resizeCanvas() {

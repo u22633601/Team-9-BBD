@@ -31,9 +31,9 @@ class Maze {
         function dfs(x, y) {
             grid[x][y] = 0; // Mark the current cell as visited (0 represents path)
 
-			if(x == finishX && y == finishY){
-				return;
-			}
+			// if(x == finishX && y == finishY){
+			// 	return;
+			// }
 
             // Define random order for visiting neighbors
             let neighbors = [
