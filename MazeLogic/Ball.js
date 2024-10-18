@@ -17,18 +17,6 @@ class Ball extends MazeObject {
 		this.acceleration.y = 0;		
 	}
 
-// applyForce(forceX, forceY) {
-// 		// Null/NaN check for forceX and forceY
-// 		if (isNaN(forceX) || isNaN(forceY)) {
-// 			console.log('Invalid force values: ', forceX, forceY, " / Retaining ball velocity state.");
-// 		}
-// 		else {
-// 			this.velocityX.x = 0;
-// 			this.velocityX.y = 0;
-// 			this.acceleration.x = 0;
-
-// 		}
-// 	}
 
 	updatePosition(deltaTime) {
 		this.x += this.velocity.x * deltaTime + 0.5 * this.acceleration.x * deltaTime * deltaTime;

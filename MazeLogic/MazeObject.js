@@ -7,3 +7,4 @@ class MazeObject {
 }
 
 module.exports = MazeObject; // Export using CommonJS syntax
+
